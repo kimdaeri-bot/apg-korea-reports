@@ -152,6 +152,16 @@
       "startTime": "18:00",
       "endTime": null,
       "status": "confirmed"
+    },
+    {
+      "date": "2026-05-29",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "부사장님 여객부 저녁",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
     }
   ]
 }
