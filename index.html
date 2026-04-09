@@ -1,9 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" id="html-root">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>APG Korea 업무대시보드</title>
+  <script>
+    // Apply saved lang before render to prevent flash
+    (function(){
+      const l = localStorage.getItem('apg-lang') || 'ko';
+      document.documentElement.setAttribute('lang', l === 'en' ? 'en' : 'ko');
+    })();
+  </script>
   <link rel="stylesheet" href="css/style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -18,14 +25,18 @@
   <div class="header-right">
     <div class="date-display" id="currentDate"></div>
     <div id="workHoursBadge" class="work-hours-header-badge" title="팀원 근무시간 요약">🕐 근무시간</div>
+    <div class="lang-toggle" id="langToggle">
+      <button class="lang-btn" id="btn-ko" data-lang="ko">🇰🇷 KO</button>
+      <button class="lang-btn" id="btn-en" data-lang="en">🇺🇸 EN</button>
+    </div>
   </div>
 </header>
 
 <!-- ── NAV TABS ── -->
 <nav class="nav-tabs-bar">
   <div class="nav-tabs">
-    <button class="nav-tab active" data-view="work">📋 업무현황</button>
-    <button class="nav-tab" data-view="schedule">📅 일정관리</button>
+    <button class="nav-tab active" data-view="work" data-i18n="nav_work">📋 업무현황</button>
+    <button class="nav-tab" data-view="schedule" data-i18n="nav_schedule">📅 일정관리</button>
   </div>
 </nav>
 
@@ -38,9 +49,9 @@
     <!-- PERIOD FILTER BAR -->
     <div class="work-period-bar">
       <div class="work-mode-tabs">
-        <button class="work-mode-tab active" data-mode="daily">일일</button>
-        <button class="work-mode-tab" data-mode="weekly">주간</button>
-        <button class="work-mode-tab" data-mode="monthly">월간</button>
+        <button class="work-mode-tab active" data-mode="daily" data-i18n="daily">일일</button>
+        <button class="work-mode-tab" data-mode="weekly" data-i18n="weekly">주간</button>
+        <button class="work-mode-tab" data-mode="monthly" data-i18n="monthly">월간</button>
       </div>
       <!-- 일일: 날짜 피커 -->
       <div class="work-period-nav" id="daily-nav">
@@ -59,6 +70,9 @@
         <button class="period-nav-btn" id="monthly-next">→</button>
       </div>
     </div>
+
+    <!-- 종합 요약 섹션 -->
+    <div id="summaryReport" style="display:none"></div>
 
     <!-- STAT STRIP -->
     <div class="stat-strip">
@@ -81,6 +95,21 @@
         <div class="stat-label">이슈</div>
         <div class="stat-value" id="stat-issues" style="color:#E17055">—</div>
         <div class="stat-sub">건 접수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">보고 제출률</div>
+        <div class="stat-value" id="stat-submission" style="color:#a29bfe">—</div>
+        <div class="stat-sub" id="stat-submission-sub">제출 비율</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">일평균 업무시간</div>
+        <div class="stat-value" id="stat-avg-hours" style="color:#00cec9">—</div>
+        <div class="stat-sub">h / 일</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">업무 밸런스</div>
+        <div class="stat-value" id="stat-balance" style="color:#fd79a8">—</div>
+        <div class="stat-sub" id="stat-balance-sub">최대/최소 비율</div>
       </div>
     </div>
 
@@ -212,6 +241,7 @@
 
 </main>
 
+<script src="js/i18n.js"></script>
 <script src="js/charts.js"></script>
 <script src="js/app.js"></script>
 </body>

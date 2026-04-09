@@ -160,10 +160,15 @@ body {
 
 /* ── STAT STRIP ── */
 .stat-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   margin-bottom: 28px;
+}
+
+.stat-strip .stat-card {
+  flex: 1 1 calc(25% - 16px);
+  min-width: 140px;
 }
 
 .stat-card {
@@ -1892,9 +1897,269 @@ body {
   color: #e0e4e8;
 }
 
+/* ════════════════════════════════════════
+   종합 요약 섹션 (#summaryReport)
+   ════════════════════════════════════════ */
+
+#summaryReport {
+  background: #f8f7ff;
+  border-left: 4px solid #6C5CE7;
+  border-radius: var(--radius);
+  border: 1px solid #e4deff;
+  border-left: 4px solid #6C5CE7;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.summary-report-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #4a3f8a;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #e4deff;
+  padding-bottom: 10px;
+}
+
+/* 일일 요약 */
+.sr-daily-row {
+  font-size: 13px;
+  color: #2d3748;
+  line-height: 1.7;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.sr-daily-row .sr-member {
+  font-weight: 700;
+  color: #5a4fd6;
+  flex-shrink: 0;
+  min-width: 56px;
+}
+
+.sr-daily-row .sr-text {
+  color: #4a5568;
+}
+
+.sr-daily-row .sr-hours {
+  color: #718096;
+  font-size: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* 공통 섹션 헤더 */
+.sr-section-header {
+  font-size: 13px;
+  font-weight: 700;
+  color: #5a4fd6;
+  margin: 12px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sr-section-header:first-of-type {
+  margin-top: 0;
+}
+
+/* 주간 / 월간 리스트 */
+.sr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 12px;
+}
+
+.sr-list-item {
+  font-size: 12px;
+  color: #4a5568;
+  line-height: 1.6;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.sr-list-item::before {
+  content: '•';
+  color: #a29bfe;
+  flex-shrink: 0;
+}
+
+/* 구분선 */
+.sr-divider {
+  height: 1px;
+  background: #e4deff;
+  margin: 14px 0;
+}
+
+/* 하단 통계 줄 */
+.sr-footer {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e4deff;
+  font-size: 12px;
+  color: #5a4fd6;
+  font-weight: 600;
+}
+
+.sr-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 카테고리별 비중 바 */
+.sr-cat-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.sr-cat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+}
+
+.sr-cat-bar-label {
+  width: 36px;
+  color: #4a5568;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.sr-cat-bar-wrap {
+  flex: 1;
+  height: 10px;
+  background: #ede9fe;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.sr-cat-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #6C5CE7, #a29bfe);
+  transition: width 0.6s ease;
+}
+
+.sr-cat-bar-pct {
+  width: 32px;
+  text-align: right;
+  color: #718096;
+  font-size: 11px;
+}
+
+/* 주차별 업무량 미니 바 */
+.sr-week-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 6px;
+  height: 48px;
+}
+
+.sr-week-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+}
+
+.sr-week-bar-wrap {
+  width: 100%;
+  background: #ede9fe;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  height: 36px;
+}
+
+.sr-week-bar-fill {
+  width: 100%;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #6C5CE7, #a29bfe);
+  transition: height 0.5s ease;
+  min-height: 0;
+}
+
+.sr-week-bar-label {
+  font-size: 10px;
+  color: #718096;
+  text-align: center;
+}
+
+.sr-week-bar-value {
+  font-size: 10px;
+  color: #5a4fd6;
+  font-weight: 700;
+}
+
+/* 팀원별 기여도 */
+.sr-member-contrib {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.sr-member-contrib-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.sr-member-contrib-name {
+  width: 52px;
+  font-weight: 600;
+  color: #4a5568;
+  flex-shrink: 0;
+}
+
+.sr-member-contrib-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: #ede9fe;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sr-member-contrib-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  opacity: 0.85;
+}
+
+.sr-member-contrib-val {
+  font-size: 11px;
+  color: #718096;
+  width: 60px;
+  text-align: right;
+}
+
+/* 빈 상태 */
+.sr-empty {
+  text-align: center;
+  padding: 24px;
+  color: #a29bfe;
+  font-size: 13px;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
-  .stat-strip { grid-template-columns: repeat(2, 1fr); }
+  .stat-strip .stat-card { flex: 1 1 calc(50% - 16px); }
   .charts-grid { grid-template-columns: 1fr; }
   .members-grid { grid-template-columns: 1fr; }
   .bottom-grid { grid-template-columns: 1fr; }
@@ -1911,7 +2176,7 @@ body {
 }
 
 @media (max-width: 600px) {
-  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .stat-strip .stat-card { flex: 1 1 calc(50% - 16px); }
   .date-display { display: none; }
   .leave-cal-day { min-height: 50px; }
   .ucal-day { min-height: 60px; }

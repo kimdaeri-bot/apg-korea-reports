@@ -123,38 +123,6 @@ function renderCategoryChart(data) {
 /** 상태 도넛 차트 */
 function renderStatusChart(data) {
   destroyChart('status');
-  const ctx = document.getElementById('statusChart').getContext('2d');
-  const STATUS_COLORS = {
-    '완료': '#00B894',
-    '진행중': '#FDCB6E',
-    '예정': '#74B9FF',
-  };
-  charts['status'] = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: data.labels,
-      datasets: [{
-        data: data.values,
-        backgroundColor: data.labels.map(l => (STATUS_COLORS[l] || '#888') + 'cc'),
-        borderColor: data.labels.map(l => STATUS_COLORS[l] || '#888'),
-        borderWidth: 2,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      ...CHART_DEFAULTS,
-      cutout: '68%',
-      plugins: {
-        ...CHART_DEFAULTS.plugins,
-        tooltip: {
-          ...CHART_DEFAULTS.plugins.tooltip,
-          callbacks: {
-            label: ctx => ` ${ctx.label}: ${ctx.parsed}건`
-          }
-        }
-      }
-    }
-  });
 }
 
 /** 주간/월간 업무시간 추이 라인 차트 */

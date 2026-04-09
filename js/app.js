@@ -173,12 +173,229 @@ function getFilteredReportsLegacy() {
 function render() {
   updatePeriodUI();
   const reports = getFilteredReports();
+  renderSummaryReport(reports);
   renderStats(reports);
   renderCharts(reports);
   renderDailySummaryPanel(reports);
   renderMemberCards(reports);
   renderIssues(reports);
   renderMissing(reports);
+}
+
+/* ── 종합 요약 섹션 렌더링 ── */
+function renderSummaryReport(reports) {
+  const container = document.getElementById('summaryReport');
+  if (!container) return;
+
+  const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+  const now = new Date();
+  const team = getTeam();
+
+  if (reports.length === 0) {
+    container.style.display = 'block';
+    container.innerHTML = `<div class="sr-empty">📭 해당 기간의 보고서가 없습니다.</div>`;
+    return;
+  }
+
+  container.style.display = 'block';
+
+  // 공통 집계
+  const totalHours  = reports.reduce((s, r) => s + (r.totalHours || 0), 0);
+  const allItems    = reports.flatMap(r => r.items);
+  const doneCount   = allItems.filter(i => i.status === 'done').length;
+  const wipCount    = allItems.filter(i => i.status === 'wip').length;
+  const issueCount  = reports.reduce((s, r) => s + (r.issues || []).length, 0);
+  const memberSet   = new Set(reports.map(r => r.memberId));
+  const totalMembers = team.length;
+
+  /* ───── 일일 모드 ───── */
+  if (workMode === 'daily') {
+    const d = new Date(dailyDate);
+    const dateLabel = `${d.getMonth()+1}월 ${d.getDate()}일(${WEEKDAY_KO[d.getDay()]})`;
+
+    const memberRows = team.map(m => {
+      const mReports = reports.filter(r => r.memberId === m.id);
+      if (mReports.length === 0) return '';
+      const hrs = mReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+      const summary = mReports.map(r => {
+        const done = r.items.filter(i => i.status === 'done').map(i => i.task).join(', ');
+        const wip  = r.items.filter(i => i.status === 'wip').map(i => i.task).join(', ');
+        return [done ? done + ' 완료' : '', wip ? wip + ' 진행중' : ''].filter(Boolean).join(', ');
+      }).join(' | ');
+      return `<div class="sr-daily-row">
+        <span class="sr-member">${m.name}:</span>
+        <span class="sr-text">${summary || '—'}</span>
+        <span class="sr-hours">(${hrs}h)</span>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    container.innerHTML = `
+      <div class="summary-report-title">📋 ${dateLabel} 종합 요약</div>
+      <div class="sr-daily-rows">${memberRows || '<div class="sr-empty">데이터 없음</div>'}</div>
+      <div class="sr-divider"></div>
+      <div class="sr-footer">
+        <span class="sr-footer-item">📊 총 업무시간: <strong>${totalHours}h</strong></span>
+        <span class="sr-footer-item">👥 인원: <strong>${memberSet.size}명</strong></span>
+        <span class="sr-footer-item">✅ 완료: <strong>${doneCount}건</strong></span>
+        <span class="sr-footer-item">🔄 진행: <strong>${wipCount}건</strong></span>
+        <span class="sr-footer-item">⚠️ 이슈: <strong>${issueCount}건</strong></span>
+      </div>
+    `;
+    return;
+  }
+
+  /* ───── 주간 모드 ───── */
+  if (workMode === 'weekly') {
+    const base = new Date(now);
+    base.setDate(base.getDate() + weeklyOffset * 7);
+    const mon = getMonday(base);
+    const fri = new Date(mon); fri.setDate(mon.getDate() + 4);
+    const weekNum = getWeekOfMonth(mon);
+    const weekLabel = `${mon.getMonth()+1}월 ${weekNum}주차(${mon.getMonth()+1}/${mon.getDate()}~${fri.getMonth()+1}/${fri.getDate()})`;
+
+    // 완료된 주요 업무 (done 아이템, 각 멤버 최대 1개)
+    const completedItems = [];
+    team.forEach(m => {
+      const mReports = reports.filter(r => r.memberId === m.id);
+      const doneItems = mReports.flatMap(r => r.items.filter(i => i.status === 'done'));
+      if (doneItems.length > 0) {
+        completedItems.push({ task: doneItems[0].task, member: m.name });
+      }
+    });
+
+    // 미완료/이슈
+    const issueItems = reports.flatMap(r =>
+      (r.issues || []).map(issue => ({ issue, member: r.member }))
+    );
+
+    // 완료율 및 트렌드 (이전 주 비교)
+    const prevBase = new Date(now);
+    prevBase.setDate(prevBase.getDate() + (weeklyOffset - 1) * 7);
+    const prevMon = getMonday(prevBase);
+    const prevSun = new Date(prevMon); prevSun.setDate(prevMon.getDate() + 6);
+    const prevReports = (allData?.reports || []).filter(r => {
+      const d = new Date(r.date); return d >= prevMon && d <= prevSun;
+    });
+    const prevHours = prevReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+    const diffHours = totalHours - prevHours;
+    const diffStr = diffHours > 0 ? `+${diffHours}h (증가)` : diffHours < 0 ? `${diffHours}h (감소)` : `변동 없음`;
+    const completionRate = allItems.length > 0 ? Math.round(doneCount / allItems.length * 100) : 0;
+    const avgHours = memberSet.size > 0 ? (totalHours / (memberSet.size || 1)).toFixed(1) : 0;
+
+    container.innerHTML = `
+      <div class="summary-report-title">📋 ${weekLabel} 주간 요약</div>
+      <div class="sr-section-header">📌 주요 완료 업무</div>
+      <div class="sr-list">
+        ${completedItems.length > 0
+          ? completedItems.map(c => `<div class="sr-list-item">${c.task} <span style="color:#a29bfe;margin-left:4px">(${c.member})</span></div>`).join('')
+          : '<div class="sr-list-item" style="color:#a29bfe">완료 업무 없음</div>'
+        }
+      </div>
+      ${issueItems.length > 0 ? `
+      <div class="sr-section-header">⚠️ 미완료/이슈</div>
+      <div class="sr-list">
+        ${issueItems.map(i => `<div class="sr-list-item">${i.issue} <span style="color:#a29bfe;margin-left:4px">(${i.member})</span></div>`).join('')}
+      </div>` : ''}
+      <div class="sr-section-header">📈 트렌드</div>
+      <div class="sr-list">
+        <div class="sr-list-item">전주 대비 업무시간: <strong style="color:#5a4fd6;margin-left:4px">${diffStr}</strong></div>
+        <div class="sr-list-item">업무 완료율: <strong style="color:#5a4fd6;margin-left:4px">${completionRate}%</strong></div>
+      </div>
+      <div class="sr-divider"></div>
+      <div class="sr-footer">
+        <span class="sr-footer-item">📊 주간 총시간: <strong>${totalHours}h</strong></span>
+        <span class="sr-footer-item">일평균: <strong>${(totalHours / 5).toFixed(1)}h</strong></span>
+        <span class="sr-footer-item">👥 참여: <strong>${memberSet.size}명</strong></span>
+      </div>
+    `;
+    return;
+  }
+
+  /* ───── 월간 모드 ───── */
+  if (workMode === 'monthly') {
+    const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+    const monthLabel = `${base.getFullYear()}년 ${base.getMonth()+1}월`;
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+    const workDays = new Set(reports.map(r => r.date)).size || 1;
+
+    // 카테고리별 비중
+    const catHours = {};
+    reports.forEach(r => r.items.forEach(i => {
+      catHours[i.category] = (catHours[i.category] || 0) + i.hours;
+    }));
+    const totalCatHours = Object.values(catHours).reduce((s, v) => s + v, 0) || 1;
+    const catBarsHTML = Object.entries(catHours)
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, hrs]) => {
+        const pct = Math.round(hrs / totalCatHours * 100);
+        return `<div class="sr-cat-bar-row">
+          <span class="sr-cat-bar-label">${cat}</span>
+          <div class="sr-cat-bar-wrap"><div class="sr-cat-bar-fill" style="width:${pct}%"></div></div>
+          <span class="sr-cat-bar-pct">${pct}%</span>
+        </div>`;
+      }).join('');
+
+    // 주차별 업무량
+    const weekHours = {};
+    reports.forEach(r => {
+      const d = new Date(r.date);
+      const wk = getWeekOfMonth(d);
+      weekHours[wk] = (weekHours[wk] || 0) + (r.totalHours || 0);
+    });
+    const maxWeekHrs = Math.max(...Object.values(weekHours), 1);
+    const weekNums = [1, 2, 3, 4];
+    const weekBarsHTML = `<div class="sr-week-bars">
+      ${weekNums.map(wk => {
+        const hrs = weekHours[wk] || 0;
+        const pct = Math.round(hrs / maxWeekHrs * 100);
+        return `<div class="sr-week-bar-item">
+          <span class="sr-week-bar-value">${hrs > 0 ? hrs + 'h' : '-'}</span>
+          <div class="sr-week-bar-wrap"><div class="sr-week-bar-fill" style="height:${pct}%"></div></div>
+          <span class="sr-week-bar-label">${wk}주</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+    // 팀원별 기여도
+    const memberHours = {};
+    reports.forEach(r => {
+      memberHours[r.memberId] = (memberHours[r.memberId] || 0) + (r.totalHours || 0);
+    });
+    const maxMemberHrs = Math.max(...Object.values(memberHours), 1);
+    const memberContribHTML = team.map(m => {
+      const hrs = memberHours[m.id] || 0;
+      if (hrs === 0) return '';
+      const pct = Math.round(hrs / totalHours * 100);
+      const barPct = Math.round(hrs / maxMemberHrs * 100);
+      return `<div class="sr-member-contrib-row">
+        <span class="sr-member-contrib-name">${m.name}</span>
+        <div class="sr-member-contrib-bar-wrap">
+          <div class="sr-member-contrib-bar-fill" style="width:${barPct}%;background:${m.color}"></div>
+        </div>
+        <span class="sr-member-contrib-val">${hrs}h (${pct}%)</span>
+      </div>`;
+    }).filter(Boolean).join('');
+
+    // 보고 제출률
+    const submissionRate = Math.round(memberSet.size / totalMembers * 100);
+
+    container.innerHTML = `
+      <div class="summary-report-title">📋 ${monthLabel} 월간 보고</div>
+      <div class="sr-section-header">📊 카테고리별 비중</div>
+      <div class="sr-cat-bars">${catBarsHTML || '<div style="color:#a29bfe;font-size:12px">데이터 없음</div>'}</div>
+      <div class="sr-section-header" style="margin-top:14px">📈 주차별 업무량</div>
+      ${weekBarsHTML}
+      <div class="sr-section-header" style="margin-top:14px">👥 팀원별 기여도</div>
+      <div class="sr-member-contrib">${memberContribHTML || '<div style="color:#a29bfe;font-size:12px">데이터 없음</div>'}</div>
+      ${issueCount > 0 ? `<div class="sr-section-header" style="margin-top:14px">⚠️ 누적 이슈: <strong>${issueCount}건</strong> 미해결</div>` : ''}
+      <div class="sr-divider"></div>
+      <div class="sr-footer">
+        <span class="sr-footer-item">📊 월간 총시간: <strong>${totalHours}h</strong></span>
+        <span class="sr-footer-item">일평균: <strong>${(totalHours / workDays).toFixed(1)}h</strong></span>
+        <span class="sr-footer-item">보고 제출률: <strong>${submissionRate}%</strong></span>
+      </div>
+    `;
+  }
 }
 
 /* ── 일일 요약 패널 (팀원 카드 위) ── */
@@ -275,12 +492,13 @@ function renderStats(reports) {
   const doneTasks   = reports.reduce((s, r) => s + r.items.filter(i => i.status === 'done').length, 0);
   const totalIssues = reports.reduce((s, r) => s + (r.issues || []).length, 0);
   const submitters  = new Set(reports.map(r => r.memberId)).size;
+  const team        = getTeam();
+  const totalMembers = team.length;
 
   // 월간 모드: 일평균 표시
   if (workMode === 'monthly') {
     const now  = new Date();
     const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
-    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
     // 실제 데이터 있는 날짜 수
     const workDays = new Set(reports.map(r => r.date)).size || 1;
     const avgHours = workDays > 0 ? (totalHours / workDays) : 0;
@@ -294,6 +512,49 @@ function renderStats(reports) {
   document.getElementById('stat-tasks').textContent  = totalTasks;
   document.getElementById('stat-done').textContent   = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
   document.getElementById('stat-issues').textContent = totalIssues;
+
+  // ── 추가 통계 카드 ──
+
+  // 보고 제출률: 해당 기간 보고한 멤버 수 / 전체 팀원 수
+  const submissionRate = totalMembers > 0 ? Math.round(submitters / totalMembers * 100) : 0;
+  const submissionEl = document.getElementById('stat-submission');
+  if (submissionEl) {
+    submissionEl.textContent = submissionRate + '%';
+    const subEl = document.getElementById('stat-submission-sub');
+    if (subEl) subEl.textContent = `${submitters}/${totalMembers}명 제출`;
+  }
+
+  // 일평균 업무시간
+  const workDays = new Set(reports.map(r => r.date)).size || 1;
+  const avgHoursPerDay = totalHours / workDays;
+  const avgHoursEl = document.getElementById('stat-avg-hours');
+  if (avgHoursEl) avgHoursEl.textContent = avgHoursPerDay.toFixed(1);
+
+  // 업무 밸런스: 가장 많이 일한 사람 vs 가장 적게 일한 사람
+  const balanceEl = document.getElementById('stat-balance');
+  const balanceSubEl = document.getElementById('stat-balance-sub');
+  if (balanceEl) {
+    if (submitters >= 2) {
+      const memberHoursMap = {};
+      reports.forEach(r => {
+        memberHoursMap[r.member] = (memberHoursMap[r.member] || 0) + (r.totalHours || 0);
+      });
+      const vals = Object.values(memberHoursMap);
+      const maxH = Math.max(...vals);
+      const minH = Math.min(...vals);
+      const ratio = minH > 0 ? (maxH / minH).toFixed(1) : '∞';
+      const maxMember = Object.keys(memberHoursMap).find(k => memberHoursMap[k] === maxH);
+      const minMember = Object.keys(memberHoursMap).find(k => memberHoursMap[k] === minH);
+      balanceEl.textContent = ratio + 'x';
+      if (balanceSubEl) {
+        const overload = parseFloat(ratio) >= 2;
+        balanceSubEl.textContent = overload ? `⚠️ ${maxMember} 과부하` : `${maxMember} ${maxH}h / ${minMember} ${minH}h`;
+      }
+    } else {
+      balanceEl.textContent = '—';
+      if (balanceSubEl) balanceSubEl.textContent = '2명 이상 필요';
+    }
+  }
 }
 
 /* ── CHARTS ── */
