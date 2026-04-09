@@ -132,6 +132,16 @@
       "startTime": "09:00",
       "endTime": "18:00",
       "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "김영성 사장님 팀 점심",
+      "location": "",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "status": "confirmed"
     }
   ]
 }
