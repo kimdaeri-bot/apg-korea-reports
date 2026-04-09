@@ -175,9 +175,56 @@ function render() {
   const reports = getFilteredReports();
   renderStats(reports);
   renderCharts(reports);
+  renderDailySummaryPanel(reports);
   renderMemberCards(reports);
   renderIssues(reports);
   renderMissing(reports);
+}
+
+/* ── 일일 요약 패널 (팀원 카드 위) ── */
+function renderDailySummaryPanel(reports) {
+  let container = document.getElementById('dailySummaryPanel');
+  if (!container) return;
+
+  // summary가 있는 report만
+  const withSummary = reports.filter(r => r.summary);
+  if (withSummary.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = '';
+
+  // 날짜별 그룹핑
+  const dateGroups = {};
+  withSummary.forEach(r => {
+    if (!dateGroups[r.date]) dateGroups[r.date] = [];
+    dateGroups[r.date].push(r);
+  });
+
+  const WEEKDAY_KO = ['일', '월', '화', '수', '목', '금', '토'];
+
+  const html = Object.keys(dateGroups).sort().reverse().map(dateStr => {
+    const d = new Date(dateStr + 'T00:00:00');
+    const mStr = `${d.getMonth()+1}/${d.getDate()}`;
+    const wStr = WEEKDAY_KO[d.getDay()];
+    const rows = dateGroups[dateStr].map(r => `
+      <div class="daily-summary-row">
+        <span class="summary-member">${r.member}:</span>
+        <span class="summary-text">${r.summary}</span>
+      </div>
+    `).join('');
+    return `
+      <div class="daily-summary-date-group">
+        <div class="daily-summary-date-label">📅 ${mStr} (${wStr})</div>
+        <div class="daily-summary-rows">${rows}</div>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="daily-summary-panel-title">📋 팀원 업무 요약</div>
+    ${html}
+  `;
 }
 
 /* ── 기간 UI 업데이트 ── */
@@ -373,6 +420,20 @@ function renderDailyBarChart(reports, colorMap) {
   });
 }
 
+/* ── 상태 아이콘 ── */
+function statusIcon(status) {
+  if (status === 'done') return '✅';
+  if (status === 'wip')  return '🔄';
+  return '📅';
+}
+
+/* ── 우선순위 아이콘 ── */
+function priorityIcon(priority) {
+  if (priority === 'high') return '<span class="task-priority-icon" title="높음">🔴</span>';
+  if (priority === 'low')  return '<span class="task-priority-icon" title="낮음" style="opacity:0.5">🔵</span>';
+  return '';
+}
+
 /* ── MEMBER CARDS ── */
 function renderMemberCards(reports) {
   const container = document.getElementById('memberCards');
@@ -383,20 +444,23 @@ function renderMemberCards(reports) {
     const memberReports = reports.filter(r => r.memberId === member.id);
     if (memberReports.length === 0) return;
 
-    const totalHours    = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
-    const allItems      = memberReports.flatMap(r => r.items);
+    const totalHours     = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+    const allItems       = memberReports.flatMap(r => r.items);
+    const doneCount      = allItems.filter(i => i.status === 'done').length;
+    const wipCount       = allItems.filter(i => i.status === 'wip').length;
     const workHoursLabel = formatWorkHours(member);
+
+    // 이슈 & 요약 (가장 최근 날짜 기준)
+    const sortedReports  = [...memberReports].sort((a, b) => b.date.localeCompare(a.date));
+    const allIssues      = memberReports.flatMap(r => r.issues || []);
+    const latestSummary  = sortedReports.find(r => r.summary)?.summary || null;
 
     // 타임라인 섹션 — 모드별 분기
     let timelineHTML = '';
 
     if (workMode === 'daily') {
-      // 일일: 단순 업무 목록 + 총시간
-      timelineHTML = `
-        <div class="timeline">
-          <div class="timeline-title">당일 업무</div>
-          <div style="font-size:13px;color:var(--text-muted);padding:6px 0;">총 ${totalHours.toFixed(1)}시간</div>
-        </div>`;
+      // 일일: 없음 (태스크 목록만)
+      timelineHTML = '';
     } else if (workMode === 'weekly') {
       // 주간: 월~금 바 차트
       const dayHours = {};
@@ -425,11 +489,9 @@ function renderMemberCards(reports) {
         </div>`;
     } else if (workMode === 'monthly') {
       // 월간: 주차별 요약
-      const now  = new Date();
-      const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
       const weekSummary = {};
       memberReports.forEach(r => {
-        const d = new Date(r.date);
+        const d  = new Date(r.date);
         const wk = getWeekOfMonth(d);
         weekSummary[wk] = (weekSummary[wk] || 0) + (r.totalHours || 0);
       });
@@ -445,6 +507,45 @@ function renderMemberCards(reports) {
           <div style="margin-top:6px">${weekRows || '<div style="color:var(--text-muted);font-size:12px">데이터 없음</div>'}</div>
         </div>`;
     }
+
+    // 태스크 목록 HTML (description 포함 리뉴얼)
+    const taskListHTML = allItems.map(item => `
+      <div class="task-item" style="flex-direction:column;align-items:stretch;gap:0;">
+        <div class="task-item-header">
+          <span class="task-status-icon">${statusIcon(item.status)}</span>
+          <div class="task-name-wrap">
+            <span class="task-name ${item.status === 'done' ? 'done' : ''}">${item.task}</span>
+          </div>
+          ${priorityIcon(item.priority)}
+          <div class="task-meta" style="flex-shrink:0;">
+            <span class="category-badge cat-${item.category}">${item.category}</span>
+            <span class="task-hours">${item.hours}h</span>
+          </div>
+        </div>
+        ${item.description ? `<div class="task-description">${item.description}</div>` : ''}
+      </div>
+    `).join('');
+
+    // 이슈 섹션
+    const issuesHTML = allIssues.length > 0 ? `
+      <div class="card-divider"></div>
+      <div class="card-issues-section">
+        ${allIssues.map(issue => `
+          <div class="issue-row">
+            <span class="issue-icon-sm">⚠️</span>
+            <span>${issue}</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    // 요약 박스
+    const summaryHTML = latestSummary ? `
+      <div class="card-summary-box">
+        <span class="card-summary-icon">💬</span>
+        <span>${latestSummary}</span>
+      </div>
+    ` : '';
 
     const card     = document.createElement('div');
     card.className = 'member-card';
@@ -463,20 +564,19 @@ function renderMemberCards(reports) {
           <div class="hours-label">시간</div>
         </div>
       </div>
+      <div class="member-stat-row">
+        <div class="member-stat-item">✅ 완료 <strong>${doneCount}</strong></div>
+        <span class="member-stat-divider">|</span>
+        <div class="member-stat-item">🔄 진행 <strong>${wipCount}</strong></div>
+        <span class="member-stat-divider">|</span>
+        <div class="member-stat-item">📅 예정 <strong>${allItems.length - doneCount - wipCount}</strong></div>
+      </div>
       ${timelineHTML}
       <div class="task-list">
-        ${allItems.slice(0, 5).map(item => `
-          <div class="task-item">
-            <div class="task-check ${item.status}">${item.status==='done'?'✓':item.status==='wip'?'◐':''}</div>
-            <div class="task-name ${item.status==='done'?'done':''}">${item.task}</div>
-            <div class="task-meta">
-              <span class="category-badge cat-${item.category}">${item.category}</span>
-              <span class="task-hours">${item.hours}h</span>
-            </div>
-          </div>
-        `).join('')}
-        ${allItems.length > 5 ? `<div style="text-align:center;color:var(--text-muted);font-size:12px;padding:6px;">+${allItems.length - 5}개 더</div>` : ''}
+        ${taskListHTML}
       </div>
+      ${issuesHTML}
+      ${summaryHTML}
     `;
     container.appendChild(card);
   });

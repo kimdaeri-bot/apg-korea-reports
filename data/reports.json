@@ -1,3 +1,252 @@
 {
-  "reports": []
+  "reports": [
+    {
+      "date": "2026-04-08",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "items": [
+        {
+          "task": "2분기 항공사 요금표 수집",
+          "hours": 2.5,
+          "category": "영업",
+          "status": "done",
+          "description": "EL AL, 에어프랑스, KLM 3개 항공사 2분기 요금표 수집 완료. 그룹 할인율 비교 시트 작성.",
+          "priority": "high"
+        },
+        {
+          "task": "GSSA 계약 초안 검토",
+          "hours": 2,
+          "category": "기획",
+          "status": "done",
+          "description": "법무팀 전달용 초안 검토 완료. 수수료 구조 및 독점 조항 재확인.",
+          "priority": "high"
+        },
+        {
+          "task": "팀 주간 미팅 준비",
+          "hours": 0.5,
+          "category": "행정",
+          "status": "done",
+          "description": "4/9 주간 미팅 아젠다 작성 및 자료 공유.",
+          "priority": "normal"
+        }
+      ],
+      "issues": ["EL AL 수수료 협의 회신 지연 (3영업일 초과)"],
+      "totalHours": 5,
+      "summary": "항공사 요금표 수집 및 GSSA 초안 검토 완료. EL AL 회신 대기 중."
+    },
+    {
+      "date": "2026-04-08",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "items": [
+        {
+          "task": "인천공항 라운지 현장 점검",
+          "hours": 3,
+          "category": "운영",
+          "status": "done",
+          "description": "T1·T2 라운지 시설 상태 점검 완료. 비품 교체 필요 항목 12건 리스트업.",
+          "priority": "high"
+        },
+        {
+          "task": "라운지 이용 통계 월간 보고서",
+          "hours": 2,
+          "category": "행정",
+          "status": "wip",
+          "description": "3월 이용객 통계 집계 중. 국적별 분류 작업 진행 중.",
+          "priority": "normal"
+        }
+      ],
+      "issues": [],
+      "totalHours": 5,
+      "summary": "라운지 현장 점검 완료. 월간 보고서 작성 중."
+    },
+    {
+      "date": "2026-04-08",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "items": [
+        {
+          "task": "신규 항공사 제안서 작성",
+          "hours": 3.5,
+          "category": "기획",
+          "status": "wip",
+          "description": "아시아나항공 GSSA 전환 제안서 초안 작성 중. 수익 모델 시뮬레이션 포함.",
+          "priority": "high"
+        },
+        {
+          "task": "CRM 데이터 정리",
+          "hours": 1.5,
+          "category": "영업",
+          "status": "done",
+          "description": "Q1 고객 접촉 이력 정리 완료. 350건 업데이트.",
+          "priority": "normal"
+        }
+      ],
+      "issues": ["아시아나 담당자 연락처 확인 필요"],
+      "totalHours": 5,
+      "summary": "아시아나 제안서 초안 작성 중. CRM 정리 완료."
+    },
+    {
+      "date": "2026-04-08",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "items": [
+        {
+          "task": "4월 운영비 예산 검토",
+          "hours": 2,
+          "category": "행정",
+          "status": "done",
+          "description": "부서별 4월 예산 집행 현황 확인. 항공권 부문 초과 집행 5% 내부 보고.",
+          "priority": "high"
+        },
+        {
+          "task": "협력사 미팅 일정 조율",
+          "hours": 1,
+          "category": "미팅",
+          "status": "done",
+          "description": "스카이팀 3개사 담당자 미팅 4/15로 확정.",
+          "priority": "normal"
+        },
+        {
+          "task": "직원 교육 프로그램 기획",
+          "hours": 2,
+          "category": "행정",
+          "status": "todo",
+          "description": "5월 항공 서비스 교육 커리큘럼 검토 예정. 외부 강사 섭외 리스트 작성 필요.",
+          "priority": "low"
+        }
+      ],
+      "issues": [],
+      "totalHours": 5,
+      "summary": "예산 검토 및 협력사 미팅 일정 확정. 교육 프로그램 기획 예정."
+    },
+    {
+      "date": "2026-04-09",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "items": [
+        {
+          "task": "EL AL 요금표 정리",
+          "hours": 2,
+          "category": "영업",
+          "status": "done",
+          "description": "2026년 2분기 요금표 업데이트 완료. 대형그룹 요금 5% 인상 반영. 내부 공유 완료.",
+          "priority": "normal"
+        },
+        {
+          "task": "GSSA 제안서 초안",
+          "hours": 3,
+          "category": "기획",
+          "status": "wip",
+          "description": "계약 조건 검토 및 초안 2차 작성 진행 중. 법무 검토 요청 준비.",
+          "priority": "high"
+        }
+      ],
+      "issues": ["GSSA 계약 법무 검토 필요"],
+      "totalHours": 5,
+      "summary": "요금표 정리 완료, GSSA 제안서 작성 진행중."
+    },
+    {
+      "date": "2026-04-09",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "items": [
+        {
+          "task": "라운지 비품 교체 발주",
+          "hours": 1.5,
+          "category": "운영",
+          "status": "done",
+          "description": "전날 점검 결과 기반으로 비품 12종 발주 완료. 납기 4/14 예정.",
+          "priority": "normal"
+        },
+        {
+          "task": "월간 이용 통계 보고서 완료",
+          "hours": 2,
+          "category": "행정",
+          "status": "done",
+          "description": "3월 라운지 이용객 총 4,872명. 전월 대비 12% 증가. 보고서 경영진 제출 완료.",
+          "priority": "high"
+        },
+        {
+          "task": "항공사 VIP 서비스 매뉴얼 업데이트",
+          "hours": 1.5,
+          "category": "운영",
+          "status": "wip",
+          "description": "비즈니스석 승객 우선 응대 절차 개정 중. 신규 항공사 3사 추가 반영 예정.",
+          "priority": "normal"
+        }
+      ],
+      "issues": [],
+      "totalHours": 5,
+      "summary": "라운지 점검 완료. 월간 보고서 제출. VIP 매뉴얼 업데이트 중."
+    },
+    {
+      "date": "2026-04-09",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "items": [
+        {
+          "task": "아시아나 GSSA 제안서 완료",
+          "hours": 2.5,
+          "category": "기획",
+          "status": "done",
+          "description": "최종 제안서 완성. 수익 모델 3가지 시나리오 포함. 대표 검토 요청.",
+          "priority": "high"
+        },
+        {
+          "task": "고객 DB 세그먼트 분석",
+          "hours": 2,
+          "category": "영업",
+          "status": "wip",
+          "description": "기업 고객 vs. 개인 고객 여행 패턴 분석 중. Q2 타겟 고객군 도출 목적.",
+          "priority": "normal"
+        },
+        {
+          "task": "영업 주간 보고 작성",
+          "hours": 0.5,
+          "category": "행정",
+          "status": "todo",
+          "description": "금주 영업 활동 요약 보고서. 오후 4시까지 제출 예정.",
+          "priority": "low"
+        }
+      ],
+      "issues": [],
+      "totalHours": 5,
+      "summary": "아시아나 제안서 완료 후 대표 검토 요청. 고객 DB 분석 진행 중."
+    },
+    {
+      "date": "2026-04-09",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "items": [
+        {
+          "task": "스카이팀 미팅 브리핑 자료 준비",
+          "hours": 2,
+          "category": "미팅",
+          "status": "done",
+          "description": "4/15 미팅용 회사 소개 및 GSSA 역량 소개 자료 완성. PPT 20슬라이드.",
+          "priority": "high"
+        },
+        {
+          "task": "신입 직원 온보딩 자료 정리",
+          "hours": 1.5,
+          "category": "행정",
+          "status": "wip",
+          "description": "4월 입사 예정 신입 2명을 위한 온보딩 패키지 준비 중.",
+          "priority": "normal"
+        },
+        {
+          "task": "5월 교육 강사 섭외",
+          "hours": 0.5,
+          "category": "행정",
+          "status": "todo",
+          "description": "항공 서비스 전문 강사 3인 후보 리스트 확인 후 연락 예정.",
+          "priority": "low"
+        }
+      ],
+      "issues": ["온보딩 자료 HR시스템 접근권한 미부여"],
+      "totalHours": 4,
+      "summary": "스카이팀 미팅 자료 완성. 온보딩 자료 작업 중. HR 권한 문제 발생."
+    }
+  ]
 }
