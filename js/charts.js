@@ -157,22 +157,36 @@ function renderStatusChart(data) {
   });
 }
 
-/** 주간 업무시간 추이 라인 차트 */
+/** 주간/월간 업무시간 추이 라인 차트 */
 function renderWeeklyTrendChart(data) {
   destroyChart('weeklyTrend');
   const ctx = document.getElementById('weeklyTrendChart').getContext('2d');
+  // 데이터셋에 type:'bar'가 있으면 바 차트로 렌더
+  const hasBar = data.datasets && data.datasets.some(ds => ds.type === 'bar');
+  const chartType = hasBar ? 'bar' : 'line';
+
   charts['weeklyTrend'] = new Chart(ctx, {
-    type: 'line',
+    type: chartType,
     data: {
       labels: data.labels,
-      datasets: data.datasets.map(ds => ({
-        ...ds,
-        tension: 0.4,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        borderWidth: 2,
-        fill: false,
-      }))
+      datasets: data.datasets.map(ds => {
+        const { type: _t, ...rest } = ds;
+        if (chartType === 'line') {
+          return {
+            ...rest,
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            fill: ds.fill !== undefined ? ds.fill : false,
+          };
+        }
+        return {
+          ...rest,
+          borderRadius: 6,
+          borderWidth: 2,
+        };
+      })
     },
     options: {
       ...CHART_DEFAULTS,
@@ -190,7 +204,7 @@ function renderWeeklyTrendChart(data) {
       scales: {
         x: {
           grid: { color: '#e2e8f0' },
-          ticks: { color: '#718096', font: { family: "'Noto Sans KR', system-ui" } },
+          ticks: { color: '#718096', font: { family: "'Noto Sans KR', system-ui" }, maxTicksLimit: 10 },
           border: { color: 'transparent' }
         },
         y: {

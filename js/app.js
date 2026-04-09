@@ -383,21 +383,68 @@ function renderMemberCards(reports) {
     const memberReports = reports.filter(r => r.memberId === member.id);
     if (memberReports.length === 0) return;
 
-    const totalHours = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
-    const allItems   = memberReports.flatMap(r => r.items);
-
-    const dayHours = {};
-    memberReports.forEach(r => {
-      const d      = new Date(r.date);
-      const dayIdx = d.getDay() - 1;
-      if (dayIdx >= 0 && dayIdx <= 4) {
-        dayHours[dayIdx] = (dayHours[dayIdx] || 0) + (r.totalHours || 0);
-      }
-    });
-    const maxDay = Math.max(...Object.values(dayHours), 1);
-
-    // 업무시간 표시
+    const totalHours    = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+    const allItems      = memberReports.flatMap(r => r.items);
     const workHoursLabel = formatWorkHours(member);
+
+    // 타임라인 섹션 — 모드별 분기
+    let timelineHTML = '';
+
+    if (workMode === 'daily') {
+      // 일일: 단순 업무 목록 + 총시간
+      timelineHTML = `
+        <div class="timeline">
+          <div class="timeline-title">당일 업무</div>
+          <div style="font-size:13px;color:var(--text-muted);padding:6px 0;">총 ${totalHours.toFixed(1)}시간</div>
+        </div>`;
+    } else if (workMode === 'weekly') {
+      // 주간: 월~금 바 차트
+      const dayHours = {};
+      memberReports.forEach(r => {
+        const d      = new Date(r.date);
+        const dayIdx = d.getDay() - 1;
+        if (dayIdx >= 0 && dayIdx <= 4) {
+          dayHours[dayIdx] = (dayHours[dayIdx] || 0) + (r.totalHours || 0);
+        }
+      });
+      const maxDay = Math.max(...Object.values(dayHours), 1);
+      timelineHTML = `
+        <div class="timeline">
+          <div class="timeline-title">일별 업무시간</div>
+          <div class="timeline-days">
+            ${DAYS_KO.map((d, i) => `
+              <div class="day-slot">
+                <div class="day-label">${d}</div>
+                <div class="day-bar-wrap">
+                  <div class="day-bar" style="height:${Math.round((dayHours[i]||0)/maxDay*100)}%;background:${member.color}99;"></div>
+                </div>
+                <div class="day-hours-label">${dayHours[i] ? dayHours[i].toFixed(1) : '-'}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    } else if (workMode === 'monthly') {
+      // 월간: 주차별 요약
+      const now  = new Date();
+      const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+      const weekSummary = {};
+      memberReports.forEach(r => {
+        const d = new Date(r.date);
+        const wk = getWeekOfMonth(d);
+        weekSummary[wk] = (weekSummary[wk] || 0) + (r.totalHours || 0);
+      });
+      const weekRows = Object.keys(weekSummary).sort().map(wk =>
+        `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f0f0f0;">
+          <span style="color:var(--text-muted)">${wk}주차</span>
+          <span style="font-weight:600;color:${member.color}">${weekSummary[wk].toFixed(1)}h</span>
+        </div>`
+      ).join('');
+      timelineHTML = `
+        <div class="timeline">
+          <div class="timeline-title">주차별 요약</div>
+          <div style="margin-top:6px">${weekRows || '<div style="color:var(--text-muted);font-size:12px">데이터 없음</div>'}</div>
+        </div>`;
+    }
 
     const card     = document.createElement('div');
     card.className = 'member-card';
@@ -416,20 +463,7 @@ function renderMemberCards(reports) {
           <div class="hours-label">시간</div>
         </div>
       </div>
-      <div class="timeline">
-        <div class="timeline-title">일별 업무시간</div>
-        <div class="timeline-days">
-          ${DAYS_KO.map((d, i) => `
-            <div class="day-slot">
-              <div class="day-label">${d}</div>
-              <div class="day-bar-wrap">
-                <div class="day-bar" style="height:${Math.round((dayHours[i]||0)/maxDay*100)}%;background:${member.color}99;"></div>
-              </div>
-              <div class="day-hours-label">${dayHours[i] ? dayHours[i].toFixed(1) : '-'}</div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
+      ${timelineHTML}
       <div class="task-list">
         ${allItems.slice(0, 5).map(item => `
           <div class="task-item">
@@ -505,15 +539,40 @@ function renderMissing(reports) {
   });
 }
 
-/* ── PERIOD TABS ── */
-document.querySelectorAll('.period-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentPeriod = btn.dataset.period;
-    render();
-    renderScheduleView();
+/* ── WORK MODE TABS (일일/주간/월간) ── */
+document.addEventListener('DOMContentLoaded', () => {
+  // 모드 탭 클릭
+  document.querySelectorAll('.work-mode-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.work-mode-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      workMode = btn.dataset.mode;
+      render();
+    });
   });
+
+  // 일일: 날짜 피커 기본값 및 이벤트
+  const datePicker = document.getElementById('daily-date-picker');
+  if (datePicker) {
+    const todayStr = new Date().toISOString().split('T')[0];
+    datePicker.value = todayStr;
+    datePicker.addEventListener('change', () => {
+      dailyDate = new Date(datePicker.value + 'T00:00:00');
+      render();
+    });
+  }
+
+  // 주간: 이전/다음 버튼
+  const weekPrev = document.getElementById('weekly-prev');
+  const weekNext = document.getElementById('weekly-next');
+  if (weekPrev) weekPrev.addEventListener('click', () => { weeklyOffset--; render(); });
+  if (weekNext) weekNext.addEventListener('click', () => { weeklyOffset++; render(); });
+
+  // 월간: 이전/다음 버튼
+  const monthPrev = document.getElementById('monthly-prev');
+  const monthNext = document.getElementById('monthly-next');
+  if (monthPrev) monthPrev.addEventListener('click', () => { monthlyOffset--; render(); });
+  if (monthNext) monthNext.addEventListener('click', () => { monthlyOffset++; render(); });
 });
 
 /* ── NAV TABS ── */

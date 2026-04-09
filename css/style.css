@@ -1539,6 +1539,116 @@ body {
   word-break: break-all;
 }
 
+/* ════════════════════════════════════════
+   업무현황 기간 필터 바 (일일/주간/월간)
+   ════════════════════════════════════════ */
+
+.work-period-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 10px 16px;
+  background: var(--card);
+  border-radius: 12px;
+  border: 1px solid #e0e4e8;
+  flex-wrap: wrap;
+}
+
+.work-mode-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.work-mode-tab {
+  padding: 5px 16px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+
+.work-mode-tab.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.25);
+}
+
+.work-mode-tab:not(.active):hover {
+  background: rgba(108,92,231,0.1);
+  color: var(--accent);
+}
+
+/* 기간 네비게이션 (공통) */
+.work-period-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.period-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #e0e4e8;
+  background: var(--card);
+  color: var(--text-muted);
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.period-nav-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.period-nav-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+  white-space: nowrap;
+  min-width: 160px;
+  text-align: center;
+}
+
+/* 날짜 피커 인풋 */
+.date-picker-input {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #2d3748;
+  background: var(--card);
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  padding: 5px 12px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.date-picker-input:hover,
+.date-picker-input:focus {
+  border-color: var(--accent);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .stat-strip { grid-template-columns: repeat(2, 1fr); }
@@ -1553,6 +1663,8 @@ body {
   .nav-tabs-bar { padding: 0 16px; }
   .nav-tab { padding: 10px 14px; font-size: 13px; }
   .schedule-cards-list { grid-template-columns: 1fr; }
+  .work-period-bar { gap: 10px; padding: 8px 12px; }
+  .period-nav-label { min-width: 120px; font-size: 12px; }
 }
 
 @media (max-width: 600px) {
