@@ -162,6 +162,166 @@
       "startTime": "18:00",
       "endTime": null,
       "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "최윤심",
+      "memberId": "8307936451",
+      "title": "급여 정산",
+      "location": "",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "title": "급여 정산",
+      "location": "",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "title": "급여 정산",
+      "location": "",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "title": "급여 정산",
+      "location": "",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "최윤심",
+      "memberId": "8307936451",
+      "title": "김영성 사장님 팀 점심",
+      "location": "",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "title": "김영성 사장님 팀 점심",
+      "location": "",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "title": "김영성 사장님 팀 점심",
+      "location": "",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-20",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "title": "김영성 사장님 팀 점심",
+      "location": "",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "최윤심",
+      "memberId": "8307936451",
+      "title": "여객부 저녁 회식",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "title": "여객부 저녁 회식",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "title": "여객부 저녁 회식",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "title": "여객부 저녁 회식",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-29",
+      "member": "최윤심",
+      "memberId": "8307936451",
+      "title": "부사장님 여객부 저녁",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-29",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "title": "부사장님 여객부 저녁",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-29",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "title": "부사장님 여객부 저녁",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-29",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "title": "부사장님 여객부 저녁",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
     }
   ]
 }
