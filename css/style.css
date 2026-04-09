@@ -1662,6 +1662,84 @@ html[lang="en"] .member-card .role {
   color: #b08000;
 }
 
+.badge-common {
+  background: rgba(108,92,231,0.12);
+  color: #5a4fd6;
+}
+
+/* ── common 일정 카드 ── */
+.sched-card-common {
+  border-left: 3px solid #6C5CE7 !important;
+}
+
+.sched-all-team-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(108,92,231,0.15);
+  color: #6C5CE7;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* ── common 섹션 레이블 ── */
+.sched-section-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 0 4px;
+  margin-bottom: 4px;
+}
+
+.sched-section-label-common {
+  color: #6C5CE7;
+}
+
+.sched-section-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── 캘린더 common 이벤트 배지 ── */
+.ucal-event-common-badge {
+  display: inline-block;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(108,92,231,0.2);
+  color: #6C5CE7;
+  border-radius: 4px;
+  padding: 0 3px;
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+
+/* ── 팝업 common 스타일 ── */
+.cal-detail-common {
+  border-left: 3px solid #6C5CE7;
+  padding-left: 8px;
+}
+
+.common-member-chip {
+  font-weight: 700;
+}
+
+/* ── 공통 일정 섹션 spacing ── */
+.sched-common-section,
+.sched-personal-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .guide-row code {
   font-size: 12px;
   color: #4a5568;

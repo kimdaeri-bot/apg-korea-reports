@@ -83,6 +83,7 @@ function getTypeColors() {
     fieldwork: { dot: '#00B894', bg: 'rgba(0,184,148,0.15)',   text: '#00B894', label: t('fieldwork') },
     leave:     { dot: '#74B9FF', bg: 'rgba(116,185,255,0.15)', text: '#74B9FF', label: t('leave') },
     general:   { dot: '#FDCB6E', bg: 'rgba(253,203,110,0.15)', text: '#FDCB6E', label: t('general') },
+    common:    { dot: '#6C5CE7', bg: 'rgba(108,92,231,0.15)',  text: '#6C5CE7', label: t('common') },
   };
 }
 
@@ -940,6 +941,21 @@ function getAllScheduleItems() {
     });
   });
 
+  (scheduleData.common || []).forEach(cm => {
+    items.push({
+      type:      'common',
+      date:      cm.date,
+      endDate:   cm.date,
+      member:    null,
+      memberId:  null,
+      title:     cm.title,
+      location:  cm.location,
+      startTime: cm.startTime,
+      endTime:   cm.endTime,
+      status:    cm.status,
+    });
+  });
+
   return items.sort((a, b) => a.date.localeCompare(b.date));
 }
 
@@ -1013,9 +1029,11 @@ function renderUnifiedCalendar() {
       const label = c.label;
       const name  = item.member || '';
       const title = item.title || '';
-      const text  = name ? `${name} • ${title}` : title;
-      return `<div class="ucal-event-item" style="border-left:3px solid ${c.dot};background:${c.bg}" title="[${label}] ${text}">
-        <span class="ucal-event-type">${label}</span><span class="ucal-event-text">${text}</span>
+      const isCommon = item.type === 'common';
+      const text  = isCommon ? title : (name ? `${name} • ${title}` : title);
+      const prefix = isCommon ? `<span class="ucal-event-common-badge">${t('allTeam')}</span>` : '';
+      return `<div class="ucal-event-item ucal-event-common-item" style="border-left:3px solid ${c.dot};background:${c.bg}" title="[${label}] ${text}">
+        <span class="ucal-event-type">${label}</span>${prefix}<span class="ucal-event-text">${text}</span>
       </div>`;
     }).join('');
 
@@ -1070,16 +1088,26 @@ function showDayDetail(dateStr) {
   if (items.length === 0) { popup.style.display = 'none'; return; }
 
   dateEl.textContent = fmtFullDate(dateStr);
-  listEl.innerHTML   = items.map(item => {
-    const tc    = TYPE_COLORS[item.type] || TYPE_COLORS.general;
-    const color = getMemberColor(item.member);
-    const time  = item.startTime ? `${item.startTime}${item.endTime ? ' ~ ' + item.endTime : ''}` : '';
-    return `<div class="cal-detail-item">
+  // common 일정 먼저, 개인 일정 나중에
+  const sortedItems = [...items].sort((a, b) => {
+    if (a.type === 'common' && b.type !== 'common') return -1;
+    if (a.type !== 'common' && b.type === 'common') return 1;
+    return 0;
+  });
+  listEl.innerHTML   = sortedItems.map(item => {
+    const tc      = TYPE_COLORS[item.type] || TYPE_COLORS.general;
+    const isCommon = item.type === 'common';
+    const color   = isCommon ? '#6C5CE7' : getMemberColor(item.member);
+    const time    = item.startTime ? `${item.startTime}${item.endTime ? ' ~ ' + item.endTime : ''}` : '';
+    const memberChip = isCommon
+      ? `<span class="member-chip common-member-chip" style="color:#6C5CE7">👥 ${t('commonSchedule')}</span>`
+      : `<span class="member-chip" style="color:${color}">● ${item.member}</span>`;
+    return `<div class="cal-detail-item ${isCommon ? 'cal-detail-common' : ''}">
       <span class="sched-type-badge" style="background:${tc.bg};color:${tc.text}">${tc.label}</span>
       <div class="cal-detail-content">
         <div class="cal-detail-title">${item.title}</div>
         <div class="cal-detail-meta">
-          <span class="member-chip" style="color:${color}">● ${item.member}</span>
+          ${memberChip}
           ${time ? `<span>⏰ ${time}</span>` : ''}
           ${item.location ? `<span>📍 ${item.location}</span>` : ''}
         </div>
@@ -1098,93 +1126,147 @@ function renderScheduleCards() {
   container.innerHTML = '';
 
   const TYPE_COLORS = getTypeColors();
-  let items = getAllScheduleItems();
+  const allItems = getAllScheduleItems();
 
+  // common 일정: 항상 표시
+  const commonItems = allItems.filter(i => i.type === 'common');
+  // 개인 일정: 팀원 필터 적용
+  let personalItems = allItems.filter(i => i.type !== 'common');
   if (selectedMember !== 'all') {
-    items = items.filter(i => i.member === selectedMember);
+    personalItems = personalItems.filter(i => i.member === selectedMember);
   }
 
-  if (items.length === 0) {
+  if (commonItems.length === 0 && personalItems.length === 0) {
     const who = selectedMember === 'all' ? '' : selectedMember + ' ';
     container.innerHTML = `<div class="no-schedule">📭 ${who}${t('noSchedule')}</div>`;
     return;
   }
 
-  const groupMap   = {};
-  const groupOrder = [];
+  function buildGroupedCards(items, isCommon) {
+    const groupMap   = {};
+    const groupOrder = [];
 
-  items.forEach(item => {
-    const key = `${item.date}___${item.member}`;
-    if (!groupMap[key]) {
-      groupMap[key] = { date: item.date, member: item.member, items: [] };
-      groupOrder.push(key);
-    }
-    groupMap[key].items.push(item);
-  });
-
-  groupOrder.sort((a, b) => {
-    const ga = groupMap[a];
-    const gb = groupMap[b];
-    const dateCmp = ga.date.localeCompare(gb.date);
-    if (dateCmp !== 0) return dateCmp;
-    return ga.member.localeCompare(gb.member);
-  });
-
-  groupOrder.forEach(key => {
-    const group  = groupMap[key];
-    const color  = getMemberColor(group.member);
-    const dateStr = fmtFullDate(group.date);
-
-    group.items.sort((a, b) => {
-      const ta = a.startTime || 'ZZ:ZZ';
-      const tb = b.startTime || 'ZZ:ZZ';
-      return ta.localeCompare(tb);
+    items.forEach(item => {
+      const key = isCommon ? `${item.date}___common` : `${item.date}___${item.member}`;
+      if (!groupMap[key]) {
+        groupMap[key] = { date: item.date, member: item.member, items: [], isCommon };
+        groupOrder.push(key);
+      }
+      groupMap[key].items.push(item);
     });
 
-    const itemsHtml = group.items.map(item => {
-      const tc = TYPE_COLORS[item.type] || TYPE_COLORS.general;
-      const badge = item.status === 'confirmed' || item.status === 'approved' ? 'confirmed' :
-                    item.status === 'pending' ? 'pending' : 'cancelled';
+    groupOrder.sort((a, b) => {
+      const ga = groupMap[a];
+      const gb = groupMap[b];
+      const dateCmp = ga.date.localeCompare(gb.date);
+      if (dateCmp !== 0) return dateCmp;
+      if (!isCommon) return (ga.member || '').localeCompare(gb.member || '');
+      return 0;
+    });
 
-      let timeStr = '';
-      if (item.startTime) {
-        timeStr = item.endTime ? `${item.startTime}~${item.endTime}` : item.startTime;
-      } else if (item.days) {
-        timeStr = i18n.lang === 'en' ? `${item.days}d` : `${item.days}일`;
+    return groupOrder.map(key => {
+      const group   = groupMap[key];
+      const color   = isCommon ? '#6C5CE7' : getMemberColor(group.member);
+      const dateStr = fmtFullDate(group.date);
+
+      group.items.sort((a, b) => {
+        const ta = a.startTime || 'ZZ:ZZ';
+        const tb = b.startTime || 'ZZ:ZZ';
+        return ta.localeCompare(tb);
+      });
+
+      const itemsHtml = group.items.map(item => {
+        const tc = TYPE_COLORS[item.type] || TYPE_COLORS.general;
+        const badge = item.status === 'confirmed' || item.status === 'approved' ? 'confirmed' :
+                      item.status === 'pending' ? 'pending' : 'cancelled';
+
+        let timeStr = '';
+        if (item.startTime) {
+          timeStr = item.endTime ? `${item.startTime}~${item.endTime}` : item.startTime;
+        } else if (item.days) {
+          timeStr = i18n.lang === 'en' ? `${item.days}d` : `${item.days}일`;
+        }
+
+        const titleText = item.title || '';
+        const locText   = item.location ? ` · ${item.location}` : '';
+        const noteText  = item.note ? ` · ${item.note}` : '';
+        const mainText  = `${titleText}${locText}${noteText}`;
+
+        return `
+          <div class="sched-group-item" style="border-left:3px solid ${tc.dot || tc.bg}">
+            <span class="sched-type-badge sched-type-badge-sm" style="background:${tc.bg};color:${tc.text}">${tc.label}</span>
+            ${timeStr ? `<span class="sched-group-time">${timeStr}</span>` : ''}
+            <span class="sched-group-title">${mainText}</span>
+            <span class="status-badge ${badge} sched-status-sm">${getScheduleStatusLabel(item.status)}</span>
+          </div>`;
+      }).join('');
+
+      if (isCommon) {
+        const allTeamBadge = i18n.lang === 'en' ? 'All Team' : '전체';
+        return `
+          <div class="sched-card sched-card-grouped sched-card-common">
+            <div class="sched-card-top">
+              <span class="sched-date-text">📅 ${dateStr}</span>
+            </div>
+            <div class="sched-member-chip">
+              <div class="sched-member-dot" style="background:#6C5CE7"></div>
+              <span style="color:#6C5CE7;font-weight:700;font-size:13px">👥 ${t('commonSchedule')}</span>
+              <span class="sched-all-team-badge">${allTeamBadge}</span>
+            </div>
+            <div class="sched-group-divider"></div>
+            <div class="sched-group-items">
+              ${itemsHtml}
+            </div>
+          </div>`;
+      } else {
+        return `
+          <div class="sched-card sched-card-grouped" style="--member-color:${color}">
+            <div class="sched-card-top">
+              <span class="sched-date-text">📅 ${dateStr}</span>
+            </div>
+            <div class="sched-member-chip">
+              <div class="sched-member-dot" style="background:${color}"></div>
+              <span style="color:${color};font-weight:700;font-size:13px">👤 ${group.member}</span>
+            </div>
+            <div class="sched-group-divider"></div>
+            <div class="sched-group-items">
+              ${itemsHtml}
+            </div>
+          </div>`;
       }
-
-      const titleText = item.title || '';
-      const locText   = item.location ? ` · ${item.location}` : '';
-      const noteText  = item.note ? ` · ${item.note}` : '';
-      const mainText  = `${titleText}${locText}${noteText}`;
-
-      return `
-        <div class="sched-group-item" style="border-left:3px solid ${tc.dot || tc.bg}">
-          <span class="sched-type-badge sched-type-badge-sm" style="background:${tc.bg};color:${tc.text}">${tc.label}</span>
-          ${timeStr ? `<span class="sched-group-time">${timeStr}</span>` : ''}
-          <span class="sched-group-title">${mainText}</span>
-          <span class="status-badge ${badge} sched-status-sm">${getScheduleStatusLabel(item.status)}</span>
-        </div>`;
     }).join('');
+  }
 
-    const card = document.createElement('div');
-    card.className = 'sched-card sched-card-grouped';
-    card.style.setProperty('--member-color', color);
-    card.innerHTML = `
-      <div class="sched-card-top">
-        <span class="sched-date-text">📅 ${dateStr}</span>
+  // common 섹션을 최상단에 표시
+  if (commonItems.length > 0) {
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'sched-common-section';
+    sectionEl.innerHTML = `
+      <div class="sched-section-label sched-section-label-common">
+        <span class="sched-section-dot" style="background:#6C5CE7"></span>
+        ${t('commonSchedule')}
       </div>
-      <div class="sched-member-chip">
-        <div class="sched-member-dot" style="background:${color}"></div>
-        <span style="color:${color};font-weight:700;font-size:13px">👤 ${group.member}</span>
-      </div>
-      <div class="sched-group-divider"></div>
-      <div class="sched-group-items">
-        ${itemsHtml}
-      </div>
+      ${buildGroupedCards(commonItems, true)}
     `;
-    container.appendChild(card);
-  });
+    container.appendChild(sectionEl);
+  }
+
+  if (personalItems.length > 0) {
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'sched-personal-section';
+    if (commonItems.length > 0) {
+      sectionEl.innerHTML = `
+        <div class="sched-section-label">
+          <span class="sched-section-dot" style="background:#888"></span>
+          ${i18n.lang === 'en' ? 'Individual Schedules' : '개인 일정'}
+        </div>
+        ${buildGroupedCards(personalItems, false)}
+      `;
+    } else {
+      sectionEl.innerHTML = buildGroupedCards(personalItems, false);
+    }
+    container.appendChild(sectionEl);
+  }
 }
 
 /* ── 팀원 필터 이벤트 ── */

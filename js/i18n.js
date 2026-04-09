@@ -46,6 +46,9 @@ const i18n = {
       fieldwork: '외근',
       leave: '휴가',
       general: '기타',
+      common: '공통',
+      commonSchedule: '공통 일정',
+      allTeam: '전체',
       /* leave types */
       annual: '연차',
       halfDayAM: '반차(오전)',
@@ -176,6 +179,9 @@ const i18n = {
       fieldwork: 'Fieldwork',
       leave: 'Leave',
       general: 'General',
+      common: 'Common',
+      commonSchedule: 'Common Schedule',
+      allTeam: 'All Team',
       /* leave types */
       annual: 'Annual Leave',
       halfDayAM: 'Half Day (AM)',

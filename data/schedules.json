@@ -1,5 +1,16 @@
 {
-  "fieldwork": [],
+  "fieldwork": [
+    {
+      "date": "2026-05-21",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "location": "일본",
+      "purpose": "일본 출장 (5/21~5/24)",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    }
+  ],
   "leave": [
     {
       "date": "2026-04-16",
@@ -129,6 +140,36 @@
       "memberId": "7973766521",
       "title": "급여 정산",
       "location": "",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-22",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "일본 출장 (5/21~5/24)",
+      "location": "일본",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-23",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "일본 출장 (5/21~5/24)",
+      "location": "일본",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-05-24",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "일본 출장 (5/21~5/24)",
+      "location": "일본",
       "startTime": "09:00",
       "endTime": "18:00",
       "status": "confirmed"
