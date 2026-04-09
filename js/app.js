@@ -1331,13 +1331,14 @@ function renderScheduleCards() {
   const TYPE_COLORS = getTypeColors();
   const allItems = getAllScheduleItems();
 
-  // 공통/개인 구분 없이 날짜순 통합
-  let filteredItems = allItems;
+  // common: 항상 표시, personal: 팀원 필터 적용
+  const commonItems = allItems.filter(i => i.type === 'common');
+  let personalItems = allItems.filter(i => i.type !== 'common');
   if (selectedMember !== 'all') {
-    filteredItems = allItems.filter(i => i.type === 'common' || i.member === selectedMember);
+    personalItems = personalItems.filter(i => i.member === selectedMember);
   }
 
-  if (filteredItems.length === 0) {
+  if (commonItems.length === 0 && personalItems.length === 0) {
     const who = selectedMember === 'all' ? '' : selectedMember + ' ';
     container.innerHTML = `<div class="no-schedule">📭 ${who}${t('noSchedule')}</div>`;
     return;
@@ -1438,8 +1439,27 @@ function renderScheduleCards() {
     }).join('');
   }
 
-  // 날짜순으로 통합 표시 (common/personal 구분 없음)
-  container.innerHTML = buildGroupedCards(filteredItems, false);
+  // common 섹션 우측에 표시
+  container.classList.toggle('has-common', commonItems.length > 0);
+  if (commonItems.length > 0) {
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'sched-common-section';
+    sectionEl.innerHTML = `
+      <div class="sched-section-label sched-section-label-common">
+        <span class="sched-section-dot" style="background:#6C5CE7"></span>
+        ${t('commonSchedule')}
+      </div>
+      ${buildGroupedCards(commonItems, true)}
+    `;
+    container.appendChild(sectionEl);
+  }
+
+  if (personalItems.length > 0) {
+    const sectionEl = document.createElement('div');
+    sectionEl.className = 'sched-personal-section';
+    sectionEl.innerHTML = buildGroupedCards(personalItems, false);
+    container.appendChild(sectionEl);
+  }
 }
 
 /* ── 팀원 필터 이벤트 ── */
