@@ -733,12 +733,215 @@ function renderMemberCards(reports) {
       ${issuesHTML}
       ${summaryHTML}
     `;
-    container.appendChild(card);
+
+    // 2-column grid wrapper: left = member card, right = mini dashboard
+    const miniDash = renderMemberMiniDashboard(member, memberReports);
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'member-detail-grid';
+    wrapper.appendChild(card);
+    wrapper.appendChild(miniDash);
+
+    container.appendChild(wrapper);
   });
 
   if (container.children.length === 0) {
     container.innerHTML = `<div style="color:var(--text-muted);text-align:center;padding:40px;">${t('noPeriodData')}</div>`;
   }
+}
+
+/* ── MEMBER MINI DASHBOARD ── */
+function renderMemberMiniDashboard(member, memberReports) {
+  const allItems   = memberReports.flatMap(r => r.items);
+  const totalHours = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+
+  // 일평균 계산
+  let avgHours = 0;
+  if (workMode === 'daily') {
+    avgHours = totalHours;
+  } else if (workMode === 'weekly') {
+    const workDays = new Set(memberReports.map(r => r.date)).size || 1;
+    avgHours = totalHours / workDays;
+  } else if (workMode === 'monthly') {
+    const workDays = new Set(memberReports.map(r => r.date)).size || 1;
+    avgHours = totalHours / workDays;
+  }
+
+  // 카테고리별 시간 합산
+  const catMap = {};
+  allItems.forEach(i => {
+    const cat = i.category || '기타';
+    catMap[cat] = (catMap[cat] || 0) + (i.hours || 0);
+  });
+  const catTotal = Object.values(catMap).reduce((s, v) => s + v, 0) || 1;
+  const sortedCats = Object.entries(catMap).sort((a, b) => b[1] - a[1]);
+
+  // 카테고리 색상 맵
+  const catColorMap = {
+    '영업': '#6C5CE7',
+    '기획': '#00B894',
+    '운영': '#FDCB6E',
+    '행정': '#74B9FF',
+    '미팅': '#E17055',
+  };
+
+  const catBarsHTML = sortedCats.map(([cat, hours]) => {
+    const pct   = Math.round(hours / catTotal * 100);
+    const color = catColorMap[cat] || '#888';
+    return `
+      <div class="mini-bar-row">
+        <div class="mini-bar-label">${translateCategory(cat)}</div>
+        <div class="mini-bar-track">
+          <div class="mini-bar-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <div class="mini-bar-pct">${pct}%</div>
+      </div>`;
+  }).join('');
+
+  // 상태별 건수
+  const doneCount = allItems.filter(i => i.status === 'done').length;
+  const wipCount  = allItems.filter(i => i.status === 'wip').length;
+  const todoCount = allItems.filter(i => i.status === 'todo').length;
+  const totalItems = allItems.length || 1;
+
+  const statusHTML = `
+    <div class="mini-stat-row">
+      <span class="mini-stat-icon">✅</span>
+      <span class="mini-stat-label">${t('done')}</span>
+      <span class="mini-stat-count">${doneCount}건</span>
+      <span class="mini-stat-pct">(${Math.round(doneCount/totalItems*100)}%)</span>
+    </div>
+    <div class="mini-stat-row">
+      <span class="mini-stat-icon">🔄</span>
+      <span class="mini-stat-label">${t('inProgress')}</span>
+      <span class="mini-stat-count">${wipCount}건</span>
+      <span class="mini-stat-pct">(${Math.round(wipCount/totalItems*100)}%)</span>
+    </div>
+    <div class="mini-stat-row">
+      <span class="mini-stat-icon">📅</span>
+      <span class="mini-stat-label">${t('todo')}</span>
+      <span class="mini-stat-count">${todoCount}건</span>
+      <span class="mini-stat-pct">(${Math.round(todoCount/totalItems*100)}%)</span>
+    </div>`;
+
+  // 요일별 업무시간 (주간/일일만 의미있음)
+  let weeklyBarsHTML = '';
+  if (workMode === 'weekly' || workMode === 'daily') {
+    const DAYS_SHORT = getDaysShort();
+    const dayHours = {};
+    memberReports.forEach(r => {
+      const d = new Date(r.date);
+      const idx = d.getDay() - 1; // 0=mon
+      if (idx >= 0 && idx <= 4) {
+        dayHours[idx] = (dayHours[idx] || 0) + (r.totalHours || 0);
+      }
+    });
+    const maxH = Math.max(...Object.values(dayHours), 1);
+
+    weeklyBarsHTML = `
+      <div class="mini-section-title">요일별 업무시간</div>
+      <div class="mini-weekly-bars">
+        ${DAYS_SHORT.map((d, i) => {
+          const h   = dayHours[i] || 0;
+          const pct = Math.round(h / maxH * 100);
+          return `
+            <div class="mini-weekly-col">
+              <div class="mini-weekly-bar-wrap">
+                <div class="mini-weekly-bar-fill" style="height:${pct}%;background:${member.color}cc"></div>
+              </div>
+              <div class="mini-weekly-label">${d}</div>
+              <div class="mini-weekly-val">${h > 0 ? h.toFixed(0)+'h' : '-'}</div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  } else if (workMode === 'monthly') {
+    // 월간 모드: 주차별 요약
+    const weekMap = {};
+    memberReports.forEach(r => {
+      const d  = new Date(r.date);
+      const wk = getWeekOfMonth(d);
+      weekMap[wk] = (weekMap[wk] || 0) + (r.totalHours || 0);
+    });
+    const maxW = Math.max(...Object.values(weekMap), 1);
+    const weekKeys = Object.keys(weekMap).sort();
+
+    weeklyBarsHTML = `
+      <div class="mini-section-title">주차별 업무시간</div>
+      <div class="mini-weekly-bars">
+        ${weekKeys.map(wk => {
+          const h   = weekMap[wk] || 0;
+          const pct = Math.round(h / maxW * 100);
+          return `
+            <div class="mini-weekly-col">
+              <div class="mini-weekly-bar-wrap">
+                <div class="mini-weekly-bar-fill" style="height:${pct}%;background:${member.color}cc"></div>
+              </div>
+              <div class="mini-weekly-label">${wk}주</div>
+              <div class="mini-weekly-val">${h > 0 ? h.toFixed(0)+'h' : '-'}</div>
+            </div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // 전주 대비 (주간 모드만)
+  let prevCompareHTML = '';
+  if (workMode === 'weekly' && allData) {
+    const now = new Date();
+    const prevBase = new Date(now);
+    prevBase.setDate(prevBase.getDate() + (weeklyOffset - 1) * 7);
+    const prevMon = getMonday(prevBase);
+    const prevSun = new Date(prevMon); prevSun.setDate(prevMon.getDate() + 6);
+
+    const prevHours = (allData.reports || [])
+      .filter(r => r.memberId === member.id)
+      .filter(r => { const d = new Date(r.date); return d >= prevMon && d <= prevSun; })
+      .reduce((s, r) => s + (r.totalHours || 0), 0);
+
+    const diff = totalHours - prevHours;
+    if (prevHours > 0 || diff !== 0) {
+      const sign  = diff >= 0 ? '+' : '';
+      const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '–';
+      const color = diff > 0 ? '#00B894' : diff < 0 ? '#E17055' : '#888';
+      prevCompareHTML = `
+        <div class="mini-compare" style="color:${color}">
+          전주 대비: <strong>${sign}${diff.toFixed(1)}h</strong> ${arrow}
+        </div>`;
+    }
+  }
+
+  // 기간 레이블
+  const periodLabel = workMode === 'daily' ? '당일' : workMode === 'weekly' ? '이번주' : '이번달';
+
+  const dashEl = document.createElement('div');
+  dashEl.className = 'member-mini-dashboard';
+  dashEl.innerHTML = `
+    <div class="mini-dash-header" style="border-color:${member.color}33">
+      <span class="mini-dash-title">📊 ${member.name} · 업무 현황</span>
+    </div>
+    <div class="mini-dash-summary">
+      <div class="mini-summary-chip" style="color:${member.color};background:${member.color}11;border-color:${member.color}33">
+        <span class="mini-summary-label">${periodLabel}</span>
+        <span class="mini-summary-val">${totalHours.toFixed(1)}h</span>
+      </div>
+      <div class="mini-summary-chip" style="color:#718096;background:#f7f9fc;border-color:#e0e4e8">
+        <span class="mini-summary-label">일평균</span>
+        <span class="mini-summary-val">${avgHours.toFixed(1)}h</span>
+      </div>
+    </div>
+
+    ${sortedCats.length > 0 ? `
+    <div class="mini-section-title">카테고리별 업무분포</div>
+    <div class="mini-bars">${catBarsHTML}</div>
+    ` : ''}
+
+    <div class="mini-section-title">상태별 분포</div>
+    <div class="mini-stats">${statusHTML}</div>
+
+    ${weeklyBarsHTML}
+    ${prevCompareHTML}
+  `;
+
+  return dashEl;
 }
 
 /* ── ISSUES ── */
