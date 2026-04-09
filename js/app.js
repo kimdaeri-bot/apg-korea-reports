@@ -735,10 +735,10 @@ function renderMemberCards(reports) {
     `;
 
     // 미니 대시보드를 카드 내부 프로필 헤더 다음, task-list 이전에 삽입
-    const miniDash = renderMemberMiniDashboard(member, memberReports);
+    // mini dashboard removed
     const taskListEl = card.querySelector('.task-list');
     if (taskListEl) {
-      card.insertBefore(miniDash, taskListEl);
+      // mini dashboard removed
     } else {
       card.appendChild(miniDash);
     }
