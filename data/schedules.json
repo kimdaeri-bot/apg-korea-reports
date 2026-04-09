@@ -92,5 +92,47 @@
       "status": "approved",
       "note": "경조사"
     }
+  ],
+  "general": [
+    {
+      "date": "2026-04-12",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "title": "항공협회 정기 회의",
+      "location": "서울 여의도 한국항공협회",
+      "startTime": "14:00",
+      "endTime": "16:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-16",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "APG 아시아 지역 월례 화상회의",
+      "location": "사내 회의실 A (Zoom)",
+      "startTime": "10:00",
+      "endTime": "11:30",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-23",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "title": "항공권 발권 시스템 교육",
+      "location": "대한항공 교육센터 강서구",
+      "startTime": "09:00",
+      "endTime": "17:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-29",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "title": "IATA 규정 업데이트 세미나",
+      "location": "서울 광화문 포시즌스 호텔",
+      "startTime": "13:00",
+      "endTime": "17:00",
+      "status": "pending"
+    }
   ]
 }

@@ -29,8 +29,7 @@
 <nav class="nav-tabs-bar">
   <div class="nav-tabs">
     <button class="nav-tab active" data-view="work">📋 업무현황</button>
-    <button class="nav-tab" data-view="fieldwork">🚗 외근일정</button>
-    <button class="nav-tab" data-view="leave">🌴 휴가현황</button>
+    <button class="nav-tab" data-view="schedule">📅 일정관리</button>
   </div>
 </nav>
 
@@ -126,45 +125,66 @@
   </div><!-- /view-work -->
 
 
-  <!-- ====== VIEW: 외근일정 ====== -->
-  <div class="view-section" id="view-fieldwork">
+  <!-- ====== VIEW: 일정관리 ====== -->
+  <div class="view-section" id="view-schedule">
 
-    <div class="schedule-header-row">
-      <p class="section-title" style="margin-bottom:0">🚗 외근 일정</p>
-      <span class="sched-period-label" id="fieldwork-period-label"></span>
+    <!-- ① 월별 캘린더 뷰 -->
+    <div class="schedule-section-block">
+      <div class="schedule-section-header">
+        <p class="section-title" style="margin-bottom:0">📅 월별 캘린더</p>
+        <span class="sched-month-label" id="schedule-month-label"></span>
+      </div>
+      <div class="schedule-card">
+        <div class="unified-calendar" id="unifiedCalendar"></div>
+        <!-- 날짜 클릭 시 상세 팝업 -->
+        <div class="cal-detail-popup" id="calDetailPopup" style="display:none">
+          <div class="cal-detail-date" id="calDetailDate"></div>
+          <div class="cal-detail-list" id="calDetailList"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- 이번주 외근 카드 -->
-    <div class="fieldwork-cards" id="fieldworkCards"></div>
-
-    <!-- 이번 달 미니 캘린더 -->
-    <p class="section-title" style="margin-top:28px">📅 이번 달 외근 캘린더</p>
-    <div class="schedule-card">
-      <div class="mini-calendar" id="fieldworkCalendar"></div>
+    <!-- ② 일정 목록 -->
+    <div class="schedule-section-block">
+      <div class="schedule-list-header">
+        <p class="section-title" style="margin-bottom:0">📋 일정 목록</p>
+        <div class="schedule-filter-wrap">
+          <select class="member-filter-select" id="memberFilterSelect">
+            <option value="all">전체 팀원</option>
+            <option value="윤심">윤심</option>
+            <option value="정근아">정근아</option>
+            <option value="권은미">권은미</option>
+            <option value="이정훈">이정훈</option>
+            <option value="정경준">정경준</option>
+          </select>
+        </div>
+      </div>
+      <div class="schedule-cards-list" id="scheduleCardsList"></div>
     </div>
 
-  </div><!-- /view-fieldwork -->
-
-
-  <!-- ====== VIEW: 휴가현황 ====== -->
-  <div class="view-section" id="view-leave">
-
-    <div class="schedule-header-row">
-      <p class="section-title" style="margin-bottom:0">🌴 휴가 현황</p>
-      <span class="sched-period-label" id="leave-period-label"></span>
+    <!-- ③ 일정 등록 가이드 -->
+    <div class="schedule-section-block">
+      <p class="section-title">💬 일정 등록 가이드</p>
+      <div class="schedule-card guide-card">
+        <div class="guide-desc">카카오톡 채팅에 아래 형식으로 입력하면 자동으로 일정이 등록됩니다.</div>
+        <div class="guide-commands">
+          <div class="guide-row">
+            <span class="guide-badge badge-fieldwork">외근</span>
+            <code>/외근 4/10 강남 EL AL 사무실 GSSA 미팅 10:00-12:00</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-leave">휴가</span>
+            <code>/휴가 4/14 연차 개인사정</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-general">기타</span>
+            <code>/일정 4/12 14:00 항공협회 정기회의</code>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- 이번 달 휴가 캘린더 -->
-    <div class="schedule-card">
-      <div class="leave-legend" id="leaveLegend"></div>
-      <div class="leave-calendar" id="leaveCalendar"></div>
-    </div>
-
-    <!-- 휴가 목록 -->
-    <p class="section-title" style="margin-top:28px">📋 휴가 신청 내역</p>
-    <div class="leave-list-wrap" id="leaveList"></div>
-
-  </div><!-- /view-leave -->
+  </div><!-- /view-schedule -->
 
 </main>
 
