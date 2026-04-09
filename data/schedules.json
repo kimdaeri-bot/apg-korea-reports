@@ -42,6 +42,96 @@
       "startTime": "09:00",
       "endTime": "11:30",
       "status": "confirmed"
+    },
+    {
+      "date": "2026-04-02",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-07",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-09",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-14",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-16",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-21",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-23",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-28",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-30",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "정기 출근 (매주 화·목)",
+      "location": "사무실",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
     }
   ]
 }

@@ -229,20 +229,34 @@ function renderStats(reports) {
   const totalIssues = reports.reduce((s, r) => s + (r.issues || []).length, 0);
   const submitters  = new Set(reports.map(r => r.memberId)).size;
 
-  document.getElementById('stat-hours').textContent      = totalHours.toFixed(1);
-  document.getElementById('stat-tasks').textContent      = totalTasks;
-  document.getElementById('stat-done').textContent       = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
-  document.getElementById('stat-issues').textContent     = totalIssues;
-  document.getElementById('stat-submitters').textContent = `${submitters}명 제출`;
+  // 월간 모드: 일평균 표시
+  if (workMode === 'monthly') {
+    const now  = new Date();
+    const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+    // 실제 데이터 있는 날짜 수
+    const workDays = new Set(reports.map(r => r.date)).size || 1;
+    const avgHours = workDays > 0 ? (totalHours / workDays) : 0;
+    document.getElementById('stat-hours').textContent      = totalHours.toFixed(1);
+    document.getElementById('stat-submitters').textContent = `일평균 ${avgHours.toFixed(1)}h`;
+  } else {
+    document.getElementById('stat-hours').textContent      = totalHours.toFixed(1);
+    document.getElementById('stat-submitters').textContent = `${submitters}명 제출`;
+  }
+
+  document.getElementById('stat-tasks').textContent  = totalTasks;
+  document.getElementById('stat-done').textContent   = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) + '%' : '0%';
+  document.getElementById('stat-issues').textContent = totalIssues;
 }
 
 /* ── CHARTS ── */
 function renderCharts(reports) {
-  const team = getTeam();
-  const memberMap = {};
-  const colorMap  = {};
+  const team     = getTeam();
+  const colorMap = {};
   team.forEach(m => { colorMap[m.name] = m.color; });
 
+  // 공통: 팀원별 시간 바 차트
+  const memberMap = {};
   reports.forEach(r => {
     if (!memberMap[r.member]) memberMap[r.member] = 0;
     memberMap[r.member] += r.totalHours || 0;
@@ -254,6 +268,7 @@ function renderCharts(reports) {
     colors: memberNames.map(n => colorMap[n] || '#888'),
   });
 
+  // 공통: 카테고리, 상태
   const catMap = {};
   reports.forEach(r => r.items.forEach(i => {
     catMap[i.category] = (catMap[i.category] || 0) + i.hours;
@@ -267,33 +282,95 @@ function renderCharts(reports) {
     values: [statusMap.done, statusMap.wip, statusMap.todo],
   });
 
-  const weekLabels   = [];
-  const weekDatasets = [];
-  const now          = new Date();
+  // 4번째 차트: 모드별 분기
+  const now = new Date();
 
-  team.forEach((member, idx) => {
-    const ds = {
-      label:           member.name,
-      borderColor:     member.color,
-      backgroundColor: member.color + '33',
-      data:            [],
-    };
-    for (let w = 3; w >= 0; w--) {
-      const mon = getMonday(now);
-      mon.setDate(mon.getDate() - w * 7);
-      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      const weekHours = (allData.reports || [])
-        .filter(r => r.memberId === member.id)
-        .filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; })
-        .reduce((s, r) => s + (r.totalHours || 0), 0);
-      ds.data.push(weekHours);
-      if (idx === 0) {
-        weekLabels.push(w === 0 ? '이번주' : w === 1 ? '저번주' : w + '주전');
+  if (workMode === 'daily') {
+    // 일일: 팀원별 당일 시간 (바차트 재활용, 이미 위에서 렌더됨)
+    // 4번째 차트: 카테고리별 업무시간 (라인이 아닌 바)
+    renderDailyBarChart(reports, colorMap);
+  } else if (workMode === 'weekly') {
+    // 주간: 4주 추이 라인 차트
+    const weekLabels   = [];
+    const weekDatasets = [];
+    const base = new Date(now);
+    base.setDate(base.getDate() + weeklyOffset * 7);
+
+    team.forEach((member, idx) => {
+      const ds = {
+        label:           member.name,
+        borderColor:     member.color,
+        backgroundColor: member.color + '33',
+        data:            [],
+      };
+      for (let w = 3; w >= 0; w--) {
+        const refBase = new Date(base);
+        refBase.setDate(refBase.getDate() - w * 7);
+        const mon = getMonday(refBase);
+        const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+        const weekHours = (allData.reports || [])
+          .filter(r => r.memberId === member.id)
+          .filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; })
+          .reduce((s, r) => s + (r.totalHours || 0), 0);
+        ds.data.push(weekHours);
+        if (idx === 0) {
+          weekLabels.push(w === 0 ? '이번주' : w === 1 ? '저번주' : w + '주전');
+        }
       }
+      weekDatasets.push(ds);
+    });
+    renderWeeklyTrendChart({ labels: weekLabels, datasets: weekDatasets });
+  } else if (workMode === 'monthly') {
+    // 월간: 일별 업무시간 라인 차트
+    const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+    const daysInMonth = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate();
+    const dayLabels = [];
+    const dayHoursMap = {};
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      dayLabels.push(`${base.getMonth()+1}/${d}`);
+      dayHoursMap[dateStr] = 0;
     }
-    weekDatasets.push(ds);
+    reports.forEach(r => {
+      if (dayHoursMap[r.date] !== undefined) {
+        dayHoursMap[r.date] += (r.totalHours || 0);
+      }
+    });
+    const dateKeys = Object.keys(dayHoursMap).sort();
+    renderWeeklyTrendChart({
+      labels: dayLabels,
+      datasets: [{
+        label: '일별 업무시간',
+        borderColor: '#6C5CE7',
+        backgroundColor: 'rgba(108,92,231,0.15)',
+        data: dateKeys.map(k => dayHoursMap[k]),
+        fill: true,
+      }]
+    });
+  }
+}
+
+/* 일일 모드 4번째 차트: 카테고리별 시간 바 */
+function renderDailyBarChart(reports, colorMap) {
+  const catMap = {};
+  reports.forEach(r => r.items.forEach(i => {
+    catMap[i.category] = (catMap[i.category] || 0) + i.hours;
+  }));
+  const CAT_COLORS = {
+    '영업': '#6C5CE7', '기획': '#00B894', '운영': '#FDCB6E', '행정': '#74B9FF', '미팅': '#E17055',
+  };
+  const labels = Object.keys(catMap);
+  renderWeeklyTrendChart({
+    labels,
+    datasets: [{
+      label: '업무시간',
+      borderColor: labels.map(l => CAT_COLORS[l] || '#888'),
+      backgroundColor: labels.map(l => (CAT_COLORS[l] || '#888') + 'aa'),
+      data: labels.map(l => catMap[l]),
+      type: 'bar',
+    }]
   });
-  renderWeeklyTrendChart({ labels: weekLabels, datasets: weekDatasets });
 }
 
 /* ── MEMBER CARDS ── */
