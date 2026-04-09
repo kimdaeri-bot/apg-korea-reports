@@ -23,26 +23,53 @@ const TYPE_COLORS = {
   general:   { dot: '#FDCB6E', bg: 'rgba(253,203,110,0.15)', text: '#FDCB6E', label: '기타' },
 };
 
-let allData      = null;
+let allData      = null;  // reports.json (reports 배열만)
+let membersData  = null;  // members.json (members 배열)
 let scheduleData = null;
 let currentPeriod    = 'this-week';
 let currentView      = 'work';
 let selectedMember   = 'all';
 let selectedCalDate  = null;
 
+/* ── members.json → allData.team 호환 구조 ── */
+function getTeam() {
+  return membersData ? membersData.members : [];
+}
+
+/* ── 업무시간 포맷 ── */
+function formatWorkHours(member) {
+  if (!member.workStart || !member.workEnd) {
+    return member.note === '무한' ? '24/7' : (member.note || '—');
+  }
+  return `${member.workStart} ~ ${member.workEnd}`;
+}
+
 /* ── INIT ── */
 async function init() {
   setHeaderDate();
   try {
-    const [reportsRes, schedulesRes] = await Promise.all([
+    const [reportsRes, schedulesRes, membersRes] = await Promise.all([
       fetch('./data/reports.json'),
       fetch('./data/schedules.json'),
+      fetch('./data/members.json'),
     ]);
     if (!reportsRes.ok) throw new Error('reports fetch failed');
     allData = await reportsRes.json();
+
     if (schedulesRes.ok) {
       scheduleData = await schedulesRes.json();
     }
+
+    if (membersRes.ok) {
+      membersData = await membersRes.json();
+    }
+
+    // 일정관리 필터 옵션 팀원 목록을 members.json 기준으로 동적 생성
+    populateMemberFilter();
+
+    // 헤더 근무시간 뱃지 tooltip 업데이트
+    updateWorkHoursBadge();
+
     render();
     renderScheduleView();
   } catch(e) {
@@ -53,6 +80,28 @@ async function init() {
         <div style="color:#8888aa;font-size:13px;">data/reports.json 파일을 확인하세요.</div>
       </div>`;
   }
+}
+
+/* ── 헤더 근무시간 뱃지 tooltip ── */
+function updateWorkHoursBadge() {
+  const badge = document.getElementById('workHoursBadge');
+  if (!badge || !membersData) return;
+  const lines = membersData.members.map(m => `${m.name}: ${formatWorkHours(m)}`);
+  badge.title = lines.join('\n');
+}
+
+/* ── 팀원 필터 옵션 동적 생성 ── */
+function populateMemberFilter() {
+  const sel = document.getElementById('memberFilterSelect');
+  if (!sel || !membersData) return;
+  // 기존 옵션 정리 후 재생성
+  sel.innerHTML = '<option value="all">전체 팀원</option>';
+  membersData.members.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m.name;
+    opt.textContent = m.name;
+    sel.appendChild(opt);
+  });
 }
 
 function setHeaderDate() {
@@ -124,9 +173,10 @@ function renderStats(reports) {
 
 /* ── CHARTS ── */
 function renderCharts(reports) {
+  const team = getTeam();
   const memberMap = {};
   const colorMap  = {};
-  allData.team.forEach(m => { colorMap[m.name] = m.color; });
+  team.forEach(m => { colorMap[m.name] = m.color; });
 
   reports.forEach(r => {
     if (!memberMap[r.member]) memberMap[r.member] = 0;
@@ -156,7 +206,7 @@ function renderCharts(reports) {
   const weekDatasets = [];
   const now          = new Date();
 
-  allData.team.forEach(member => {
+  team.forEach((member, idx) => {
     const ds = {
       label:           member.name,
       borderColor:     member.color,
@@ -167,12 +217,12 @@ function renderCharts(reports) {
       const mon = getMonday(now);
       mon.setDate(mon.getDate() - w * 7);
       const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-      const weekHours = allData.reports
+      const weekHours = (allData.reports || [])
         .filter(r => r.memberId === member.id)
         .filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; })
         .reduce((s, r) => s + (r.totalHours || 0), 0);
       ds.data.push(weekHours);
-      if (member === allData.team[0]) {
+      if (idx === 0) {
         weekLabels.push(w === 0 ? '이번주' : w === 1 ? '저번주' : w + '주전');
       }
     }
@@ -185,8 +235,9 @@ function renderCharts(reports) {
 function renderMemberCards(reports) {
   const container = document.getElementById('memberCards');
   container.innerHTML = '';
+  const team = getTeam();
 
-  allData.team.forEach(member => {
+  team.forEach(member => {
     const memberReports = reports.filter(r => r.memberId === member.id);
     if (memberReports.length === 0) return;
 
@@ -203,9 +254,15 @@ function renderMemberCards(reports) {
     });
     const maxDay = Math.max(...Object.values(dayHours), 1);
 
+    // 업무시간 표시
+    const workHoursLabel = formatWorkHours(member);
+
     const card     = document.createElement('div');
     card.className = 'member-card';
     card.innerHTML = `
+      <div class="member-work-hours-badge" style="color:${member.color};border-color:${member.color}22;background:${member.color}11">
+        🕐 ${workHoursLabel}
+      </div>
       <div class="member-header">
         <div class="member-avatar" style="background:${member.color}">${member.name[0]}</div>
         <div class="member-info">
@@ -257,8 +314,9 @@ function renderMemberCards(reports) {
 function renderIssues(reports) {
   const container = document.getElementById('issueList');
   container.innerHTML = '';
+  const team = getTeam();
   const colorMap  = {};
-  allData.team.forEach(m => { colorMap[m.name] = m.color; });
+  team.forEach(m => { colorMap[m.name] = m.color; });
   const issues = reports.flatMap(r =>
     (r.issues || []).map(issue => ({ issue, member: r.member, date: r.date, color: colorMap[r.member] || '#888' }))
   );
@@ -285,9 +343,10 @@ function renderIssues(reports) {
 function renderMissing(reports) {
   const container = document.getElementById('missingList');
   container.innerHTML = '';
+  const team = getTeam();
   const today          = new Date().toISOString().split('T')[0];
   const todaySubmitters = new Set(reports.filter(r => r.date === today).map(r => r.memberId));
-  const missing        = allData.team.filter(m => !todaySubmitters.has(m.id));
+  const missing        = team.filter(m => !todaySubmitters.has(m.id));
   if (missing.length === 0) {
     container.innerHTML = '<div class="all-submitted">✅ 전원 제출 완료</div>';
     return;
@@ -338,8 +397,8 @@ function renderScheduleView() {
 
 /* ── 팀원 색상 ── */
 function getMemberColor(name) {
-  if (!allData) return '#888';
-  const m = allData.team.find(t => t.name === name);
+  const team = getTeam();
+  const m = team.find(t => t.name === name);
   return m ? m.color : '#888';
 }
 

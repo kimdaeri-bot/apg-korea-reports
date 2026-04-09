@@ -1,0 +1,9 @@
+{
+  "members": [
+    {"id": "7973766521", "name": "정경준", "role": "대표", "color": "#6C5CE7", "workStart": null, "workEnd": null, "note": "무한"},
+    {"id": "8307936451", "name": "윤심", "role": "실장", "color": "#00B894", "workStart": "09:30", "workEnd": "17:30"},
+    {"id": "8754705329", "name": "정근아", "role": "차장", "color": "#FDCB6E", "workStart": "10:00", "workEnd": "17:00"},
+    {"id": "junghoon", "name": "이정훈", "role": "차장", "color": "#74B9FF", "workStart": "09:00", "workEnd": "18:00"},
+    {"id": "eunmi", "name": "권은미", "role": "부장", "color": "#E17055", "workStart": "09:00", "workEnd": "18:00"}
+  ]
+}

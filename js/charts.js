@@ -8,7 +8,7 @@ const CHART_DEFAULTS = {
   plugins: {
     legend: {
       labels: {
-        color: '#8888aa',
+        color: '#718096',
         font: { family: "'Noto Sans KR', system-ui", size: 12 },
         padding: 16,
         usePointStyle: true,
@@ -16,11 +16,11 @@ const CHART_DEFAULTS = {
       }
     },
     tooltip: {
-      backgroundColor: '#1a1a2e',
-      borderColor: 'rgba(255,255,255,0.1)',
+      backgroundColor: '#ffffff',
+      borderColor: '#e0e4e8',
       borderWidth: 1,
-      titleColor: '#e8e8f0',
-      bodyColor: '#8888aa',
+      titleColor: '#2d3748',
+      bodyColor: '#718096',
       padding: 12,
       cornerRadius: 10,
     }
@@ -67,13 +67,13 @@ function renderMemberHoursChart(data) {
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#8888aa', font: { family: "'Noto Sans KR', system-ui" } },
+          grid: { color: '#e2e8f0' },
+          ticks: { color: '#718096', font: { family: "'Noto Sans KR', system-ui" } },
           border: { color: 'transparent' }
         },
         y: {
           grid: { display: false },
-          ticks: { color: '#e8e8f0', font: { family: "'Noto Sans KR', system-ui", size: 13 } },
+          ticks: { color: '#4a5568', font: { family: "'Noto Sans KR', system-ui", size: 13 } },
           border: { color: 'transparent' }
         }
       }
@@ -189,14 +189,14 @@ function renderWeeklyTrendChart(data) {
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255,255,255,0.05)' },
-          ticks: { color: '#8888aa', font: { family: "'Noto Sans KR', system-ui" } },
+          grid: { color: '#e2e8f0' },
+          ticks: { color: '#718096', font: { family: "'Noto Sans KR', system-ui" } },
           border: { color: 'transparent' }
         },
         y: {
-          grid: { color: 'rgba(255,255,255,0.05)' },
+          grid: { color: '#e2e8f0' },
           ticks: {
-            color: '#8888aa',
+            color: '#718096',
             font: { family: "'Noto Sans KR', system-ui" },
             callback: v => v + 'h'
           },
