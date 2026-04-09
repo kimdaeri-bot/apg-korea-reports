@@ -1331,15 +1331,13 @@ function renderScheduleCards() {
   const TYPE_COLORS = getTypeColors();
   const allItems = getAllScheduleItems();
 
-  // common 일정: 항상 표시
-  const commonItems = allItems.filter(i => i.type === 'common');
-  // 개인 일정: 팀원 필터 적용
-  let personalItems = allItems.filter(i => i.type !== 'common');
+  // 공통/개인 구분 없이 날짜순 통합
+  let filteredItems = allItems;
   if (selectedMember !== 'all') {
-    personalItems = personalItems.filter(i => i.member === selectedMember);
+    filteredItems = allItems.filter(i => i.type === 'common' || i.member === selectedMember);
   }
 
-  if (commonItems.length === 0 && personalItems.length === 0) {
+  if (filteredItems.length === 0) {
     const who = selectedMember === 'all' ? '' : selectedMember + ' ';
     container.innerHTML = `<div class="no-schedule">📭 ${who}${t('noSchedule')}</div>`;
     return;
@@ -1440,36 +1438,8 @@ function renderScheduleCards() {
     }).join('');
   }
 
-  // common 섹션을 최상단에 표시
-  if (commonItems.length > 0) {
-    const sectionEl = document.createElement('div');
-    sectionEl.className = 'sched-common-section';
-    sectionEl.innerHTML = `
-      <div class="sched-section-label sched-section-label-common">
-        <span class="sched-section-dot" style="background:#6C5CE7"></span>
-        ${t('commonSchedule')}
-      </div>
-      ${buildGroupedCards(commonItems, true)}
-    `;
-    container.appendChild(sectionEl);
-  }
-
-  if (personalItems.length > 0) {
-    const sectionEl = document.createElement('div');
-    sectionEl.className = 'sched-personal-section';
-    if (commonItems.length > 0) {
-      sectionEl.innerHTML = `
-        <div class="sched-section-label">
-          <span class="sched-section-dot" style="background:#888"></span>
-          ${i18n.lang === 'en' ? 'Individual Schedules' : '개인 일정'}
-        </div>
-        ${buildGroupedCards(personalItems, false)}
-      `;
-    } else {
-      sectionEl.innerHTML = buildGroupedCards(personalItems, false);
-    }
-    container.appendChild(sectionEl);
-  }
+  // 날짜순으로 통합 표시 (common/personal 구분 없음)
+  container.innerHTML = buildGroupedCards(filteredItems, false);
 }
 
 /* ── 팀원 필터 이벤트 ── */
