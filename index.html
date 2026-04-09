@@ -18,11 +18,6 @@
   <div class="header-right">
     <div class="date-display" id="currentDate"></div>
     <div id="workHoursBadge" class="work-hours-header-badge" title="팀원 근무시간 요약">🕐 근무시간</div>
-    <div class="period-tabs">
-      <button class="period-tab active" data-period="this-week">이번주</button>
-      <button class="period-tab" data-period="last-week">저번주</button>
-      <button class="period-tab" data-period="this-month">이번달</button>
-    </div>
   </div>
 </header>
 
@@ -39,6 +34,31 @@
 
   <!-- ====== VIEW: 업무현황 ====== -->
   <div class="view-section active" id="view-work">
+
+    <!-- PERIOD FILTER BAR -->
+    <div class="work-period-bar">
+      <div class="work-mode-tabs">
+        <button class="work-mode-tab active" data-mode="daily">일일</button>
+        <button class="work-mode-tab" data-mode="weekly">주간</button>
+        <button class="work-mode-tab" data-mode="monthly">월간</button>
+      </div>
+      <!-- 일일: 날짜 피커 -->
+      <div class="work-period-nav" id="daily-nav">
+        <input type="date" id="daily-date-picker" class="date-picker-input" />
+      </div>
+      <!-- 주간: 이전/다음 주 네비 -->
+      <div class="work-period-nav" id="weekly-nav" style="display:none">
+        <button class="period-nav-btn" id="weekly-prev">←</button>
+        <span class="period-nav-label" id="weekly-label"></span>
+        <button class="period-nav-btn" id="weekly-next">→</button>
+      </div>
+      <!-- 월간: 이전/다음 달 네비 -->
+      <div class="work-period-nav" id="monthly-nav" style="display:none">
+        <button class="period-nav-btn" id="monthly-prev">←</button>
+        <span class="period-nav-label" id="monthly-label"></span>
+        <button class="period-nav-btn" id="monthly-next">→</button>
+      </div>
+    </div>
 
     <!-- STAT STRIP -->
     <div class="stat-strip">
@@ -65,8 +85,8 @@
     </div>
 
     <!-- CHARTS GRID -->
-    <p class="section-title">📊 주간 현황</p>
-    <div class="charts-grid">
+    <p class="section-title" id="charts-section-title">📊 주간 현황</p>
+    <div class="charts-grid" id="charts-grid">
       <div class="chart-card">
         <div class="chart-card-title">
           <div class="icon" style="background:rgba(108,92,231,0.2)">👤</div>
@@ -94,10 +114,10 @@
           <canvas id="statusChart"></canvas>
         </div>
       </div>
-      <div class="chart-card">
+      <div class="chart-card" id="chart-trend-card">
         <div class="chart-card-title">
           <div class="icon" style="background:rgba(116,185,255,0.2)">📈</div>
-          주간 업무시간 추이
+          <span id="trend-chart-title">주간 업무시간 추이</span>
         </div>
         <div class="chart-wrap">
           <canvas id="weeklyTrendChart"></canvas>

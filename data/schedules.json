@@ -1,5 +1,36 @@
 {
   "fieldwork": [],
   "leave": [],
-  "general": []
+  "general": [
+    {
+      "date": "2026-04-14",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "GRT 루이즈 도착 (KE편 GMP 15:00)",
+      "location": "김포국제공항(GMP)",
+      "startTime": "15:00",
+      "endTime": null,
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-15",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "GRT 루이즈와 서울 일정",
+      "location": "서울",
+      "startTime": "09:00",
+      "endTime": "18:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-16",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "GRT 루이즈 출국 (CI편 GMP→TPE 13:55)",
+      "location": "김포국제공항(GMP)",
+      "startTime": "09:00",
+      "endTime": "11:30",
+      "status": "confirmed"
+    }
+  ]
 }

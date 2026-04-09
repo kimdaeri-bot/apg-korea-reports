@@ -26,10 +26,16 @@ const TYPE_COLORS = {
 let allData      = null;  // reports.json (reports 배열만)
 let membersData  = null;  // members.json (members 배열)
 let scheduleData = null;
-let currentPeriod    = 'this-week';
+let currentPeriod    = 'this-week';  // 레거시 호환용 (일정 필터)
 let currentView      = 'work';
 let selectedMember   = 'all';
 let selectedCalDate  = null;
+
+// 업무현황 기간 필터 상태
+let workMode = 'weekly';   // 'daily' | 'weekly' | 'monthly'
+let dailyDate = new Date(); // 일일 모드 선택 날짜
+let weeklyOffset = 0;       // 주간 모드 오프셋 (0=이번주, -1=저번주, ...)
+let monthlyOffset = 0;      // 월간 모드 오프셋 (0=이번달, -1=저번달, ...)
 
 /* ── members.json → allData.team 호환 구조 ── */
 function getTeam() {
