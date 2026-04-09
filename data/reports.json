@@ -2,7 +2,7 @@
   "reports": [
     {
       "date": "2026-04-08",
-      "member": "윤심",
+      "member": "최윤심",
       "memberId": "8307936451",
       "items": [
         {
@@ -30,7 +30,9 @@
           "priority": "normal"
         }
       ],
-      "issues": ["EL AL 수수료 협의 회신 지연 (3영업일 초과)"],
+      "issues": [
+        "EL AL 수수료 협의 회신 지연 (3영업일 초과)"
+      ],
       "totalHours": 5,
       "summary": "항공사 요금표 수집 및 GSSA 초안 검토 완료. EL AL 회신 대기 중."
     },
@@ -82,7 +84,9 @@
           "priority": "normal"
         }
       ],
-      "issues": ["아시아나 담당자 연락처 확인 필요"],
+      "issues": [
+        "아시아나 담당자 연락처 확인 필요"
+      ],
       "totalHours": 5,
       "summary": "아시아나 제안서 초안 작성 중. CRM 정리 완료."
     },
@@ -122,7 +126,7 @@
     },
     {
       "date": "2026-04-09",
-      "member": "윤심",
+      "member": "최윤심",
       "memberId": "8307936451",
       "items": [
         {
@@ -142,7 +146,9 @@
           "priority": "high"
         }
       ],
-      "issues": ["GSSA 계약 법무 검토 필요"],
+      "issues": [
+        "GSSA 계약 법무 검토 필요"
+      ],
       "totalHours": 5,
       "summary": "요금표 정리 완료, GSSA 제안서 작성 진행중."
     },
@@ -244,7 +250,9 @@
           "priority": "low"
         }
       ],
-      "issues": ["온보딩 자료 HR시스템 접근권한 미부여"],
+      "issues": [
+        "온보딩 자료 HR시스템 접근권한 미부여"
+      ],
       "totalHours": 4,
       "summary": "스카이팀 미팅 자료 완성. 온보딩 자료 작업 중. HR 권한 문제 발생."
     }
