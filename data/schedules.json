@@ -1,0 +1,96 @@
+{
+  "fieldwork": [
+    {
+      "date": "2026-04-10",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "location": "강남구 삼성동 EL AL 사무실",
+      "purpose": "GSSA 계약 협의 미팅",
+      "startTime": "10:00",
+      "endTime": "12:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-11",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "location": "인천국제공항 EL AL 라운지",
+      "purpose": "현장 점검 및 라운지 운영 확인",
+      "startTime": "08:00",
+      "endTime": "14:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-17",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "location": "서울 중구 소공동 웨스틴조선호텔",
+      "purpose": "항공사 파트너 네트워킹 행사 참석",
+      "startTime": "13:00",
+      "endTime": "17:00",
+      "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "location": "서초구 반포동 JW메리어트 호텔",
+      "purpose": "항공 여행사 협회 정기 간담회",
+      "startTime": "10:00",
+      "endTime": "13:00",
+      "status": "pending"
+    },
+    {
+      "date": "2026-04-25",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "location": "인천국제공항 제2터미널 미팅룸",
+      "purpose": "신규 항공사 GSSA 제안 프레젠테이션",
+      "startTime": "09:00",
+      "endTime": "12:00",
+      "status": "confirmed"
+    }
+  ],
+  "leave": [
+    {
+      "date": "2026-04-14",
+      "endDate": "2026-04-14",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "type": "연차",
+      "days": 1,
+      "status": "approved",
+      "note": "개인 사정"
+    },
+    {
+      "date": "2026-04-15",
+      "endDate": "2026-04-16",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "type": "연차",
+      "days": 2,
+      "status": "pending",
+      "note": "가족 행사"
+    },
+    {
+      "date": "2026-04-21",
+      "endDate": "2026-04-21",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "type": "반차(오후)",
+      "days": 0.5,
+      "status": "approved",
+      "note": "병원 방문"
+    },
+    {
+      "date": "2026-04-28",
+      "endDate": "2026-04-28",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "type": "특휴",
+      "days": 1,
+      "status": "approved",
+      "note": "경조사"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "team": [
+    {"id": "7973766521", "name": "정경준", "role": "대표", "color": "#6C5CE7"},
+    {"id": "8307936451", "name": "윤심", "role": "실장", "color": "#00B894"},
+    {"id": "8754705329", "name": "정근아", "role": "차장", "color": "#FDCB6E"},
+    {"id": "eunmi", "name": "권은미", "role": "부장", "color": "#E17055"},
+    {"id": "junghoon", "name": "이정훈", "role": "차장", "color": "#74B9FF"}
+  ],
+  "reports": [
+    {
+      "date": "2026-04-07",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "items": [
+        {"task": "주간 업무 계획 수립", "hours": 1.5, "category": "행정", "status": "done"},
+        {"task": "신규 GSSA 파트너 미팅", "hours": 2.5, "category": "미팅", "status": "done"},
+        {"task": "사업 전략 보고서 검토", "hours": 2, "category": "기획", "status": "done"}
+      ],
+      "issues": [],
+      "totalHours": 6
+    },
+    {
+      "date": "2026-04-07",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "items": [
+        {"task": "EL AL 항공 요금표 정리", "hours": 2, "category": "영업", "status": "done"},
+        {"task": "GSSA 제안서 초안 작성", "hours": 3, "category": "기획", "status": "done"},
+        {"task": "항공사 미팅 준비 자료", "hours": 1.5, "category": "영업", "status": "done"}
+      ],
+      "issues": ["GSSA 계약 법무 검토 필요"],
+      "totalHours": 6.5
+    },
+    {
+      "date": "2026-04-08",
+      "member": "정근아",
+      "memberId": "8754705329",
+      "items": [
+        {"task": "국내선 운임 데이터 업데이트", "hours": 3, "category": "운영", "status": "done"},
+        {"task": "여행사 문의 응대", "hours": 2, "category": "영업", "status": "done"},
+        {"task": "월간 보고서 초안", "hours": 1.5, "category": "행정", "status": "wip"}
+      ],
+      "issues": ["국내선 운임 데이터 오류 수정 필요"],
+      "totalHours": 6.5
+    },
+    {
+      "date": "2026-04-08",
+      "member": "권은미",
+      "memberId": "eunmi",
+      "items": [
+        {"task": "대리점 계약서 검토", "hours": 2.5, "category": "행정", "status": "done"},
+        {"task": "신규 노선 영업 제안", "hours": 2, "category": "영업", "status": "done"},
+        {"task": "팀 회의 진행", "hours": 1, "category": "미팅", "status": "done"},
+        {"task": "Q2 영업 목표 수립", "hours": 1.5, "category": "기획", "status": "wip"}
+      ],
+      "issues": [],
+      "totalHours": 7
+    },
+    {
+      "date": "2026-04-09",
+      "member": "이정훈",
+      "memberId": "junghoon",
+      "items": [
+        {"task": "시스템 유지보수 점검", "hours": 2, "category": "운영", "status": "done"},
+        {"task": "예약 시스템 오류 수정", "hours": 3, "category": "운영", "status": "wip"},
+        {"task": "IT 인프라 업그레이드 계획", "hours": 1.5, "category": "기획", "status": "todo"}
+      ],
+      "issues": ["예약 시스템 간헐적 오류 발생 — 원인 파악 중"],
+      "totalHours": 6.5
+    },
+    {
+      "date": "2026-04-09",
+      "member": "윤심",
+      "memberId": "8307936451",
+      "items": [
+        {"task": "아시아나 파트너십 미팅", "hours": 2, "category": "미팅", "status": "done"},
+        {"task": "GSSA 계약서 수정", "hours": 2.5, "category": "기획", "status": "wip"},
+        {"task": "신규 항공권 패키지 기획", "hours": 1.5, "category": "기획", "status": "todo"}
+      ],
+      "issues": [],
+      "totalHours": 6
+    }
+  ]
+}
