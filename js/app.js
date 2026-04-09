@@ -595,6 +595,78 @@ function priorityIcon(priority) {
   return '';
 }
 
+/* ── 날짜 버튼 포맷 헬퍼 ── */
+function formatDateBtn(dateStr) {
+  const WEEKDAYS_KO = ['일','월','화','수','목','금','토'];
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${d.getMonth()+1}/${d.getDate()}(${WEEKDAYS_KO[d.getDay()]})`;
+}
+
+/* ── 팀원 카드 날짜 선택 핸들러 ── */
+function selectMemberDate(memberId, dateStr, card) {
+  // 버튼 active 토글
+  card.querySelectorAll('.date-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.date === dateStr);
+  });
+
+  // 선택 날짜 보고서 찾기
+  const dayReports = (allData ? allData.reports : []).filter(
+    r => r.memberId === memberId && r.date === dateStr
+  );
+  const dayItems     = dayReports.flatMap(r => r.items);
+  const dayHours     = dayReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+  const dayIssues    = dayReports.flatMap(r => r.issues || []);
+  const daySummary   = dayReports.find(r => r.summary)?.summary || null;
+
+  const wrapper = card.querySelector('.task-list-wrapper');
+  if (!wrapper) return;
+
+  const taskListHTML = dayItems.map(item => `
+    <div class="task-item" style="flex-direction:column;align-items:stretch;gap:0;">
+      <div class="task-item-header">
+        <span class="task-status-icon">✅</span>
+        <div class="task-name-wrap">
+          <span class="task-name done">${item.task}</span>
+        </div>
+        ${priorityIcon(item.priority)}
+        <div class="task-meta" style="flex-shrink:0;">
+          <span class="category-badge cat-${item.category}">${translateCategory(item.category)}</span>
+          <span class="task-hours">${item.hours}${t('hoursShort')}</span>
+        </div>
+      </div>
+      ${item.description ? `<div class="task-description">${item.description}</div>` : ''}
+    </div>
+  `).join('');
+
+  const issuesHTML = dayIssues.length > 0 ? `
+    <div class="card-divider"></div>
+    <div class="card-issues-section">
+      ${dayIssues.map(issue => `
+        <div class="issue-row">
+          <span class="issue-icon-sm">⚠️</span>
+          <span>${issue}</span>
+        </div>
+      `).join('')}
+    </div>
+  ` : '';
+
+  const summaryHTML = daySummary ? `
+    <div class="card-summary-box">
+      <span class="card-summary-icon">💬</span>
+      <span>${daySummary}</span>
+    </div>
+  ` : '';
+
+  wrapper.innerHTML = `
+    <div class="task-list">${taskListHTML || `<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">${t('noData') || '데이터 없음'}</div>`}</div>
+    ${issuesHTML}
+    ${summaryHTML}
+    <div class="date-total-hours" style="text-align:right;font-size:12px;color:var(--text-muted);margin-top:8px;">
+      업무시간: <strong>${dayHours.toFixed(1)}h</strong>
+    </div>
+  `;
+}
+
 /* ── MEMBER CARDS ── */
 function renderMemberCards(reports) {
   const container = document.getElementById('memberCards');
@@ -609,12 +681,18 @@ function renderMemberCards(reports) {
     const totalHours     = memberReports.reduce((s, r) => s + (r.totalHours || 0), 0);
     const allItems       = memberReports.flatMap(r => r.items);
     const doneCount      = allItems.filter(i => i.status === 'done').length;
-    const wipCount       = allItems.filter(i => i.status === 'wip').length;
     const workHoursLabel = formatWorkHours(member);
 
     const sortedReports  = [...memberReports].sort((a, b) => b.date.localeCompare(a.date));
     const allIssues      = memberReports.flatMap(r => r.issues || []);
     const latestSummary  = sortedReports.find(r => r.summary)?.summary || null;
+
+    // 전체 히스토리 날짜 목록 (최근순)
+    const allMemberReports = allData ? allData.reports.filter(r => r.memberId === member.id) : memberReports;
+    const allDates = [...new Set(allMemberReports.map(r => r.date))].sort((a, b) => b.localeCompare(a));
+    const currentDates = new Set(memberReports.map(r => r.date));
+    // 기본 선택: 현재 기간 가장 최근 날짜
+    const defaultDate = allDates.find(d => currentDates.has(d)) || allDates[0] || null;
 
     let timelineHTML = '';
 
@@ -666,10 +744,34 @@ function renderMemberCards(reports) {
         </div>`;
     }
 
-    const taskListHTML = allItems.map(item => `
+    // 날짜 선택 버튼 HTML
+    const dateBtnsHTML = allDates.length > 0 ? `
+      <div class="date-selector-bar">
+        <span class="date-selector-label">보고서:</span>
+        <div class="date-btns">
+          ${allDates.map(d => `
+            <button class="date-btn ${currentDates.has(d) ? 'date-btn-current' : 'date-btn-past'}${d === defaultDate ? ' active' : ''}"
+              data-date="${d}" data-member-id="${member.id}">
+              ${formatDateBtn(d)}
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    ` : '';
+
+    // 기본 날짜 업무목록
+    const defaultReports = defaultDate
+      ? allMemberReports.filter(r => r.date === defaultDate)
+      : memberReports;
+    const defaultItems   = defaultReports.flatMap(r => r.items);
+    const defaultHours   = defaultReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+    const defaultIssues  = defaultReports.flatMap(r => r.issues || []);
+    const defaultSummary = defaultReports.find(r => r.summary)?.summary || null;
+
+    const defaultTaskListHTML = defaultItems.map(item => `
       <div class="task-item" style="flex-direction:column;align-items:stretch;gap:0;">
         <div class="task-item-header">
-          <span class="task-status-icon">${statusIcon(item.status)}</span>
+          <span class="task-status-icon">✅</span>
           <div class="task-name-wrap">
             <span class="task-name ${item.status === 'done' ? 'done' : ''}">${item.task}</span>
           </div>
@@ -683,10 +785,10 @@ function renderMemberCards(reports) {
       </div>
     `).join('');
 
-    const issuesHTML = allIssues.length > 0 ? `
+    const defaultIssuesHTML = defaultIssues.length > 0 ? `
       <div class="card-divider"></div>
       <div class="card-issues-section">
-        ${allIssues.map(issue => `
+        ${defaultIssues.map(issue => `
           <div class="issue-row">
             <span class="issue-icon-sm">⚠️</span>
             <span>${issue}</span>
@@ -695,10 +797,10 @@ function renderMemberCards(reports) {
       </div>
     ` : '';
 
-    const summaryHTML = latestSummary ? `
+    const defaultSummaryHTML = defaultSummary ? `
       <div class="card-summary-box">
         <span class="card-summary-icon">💬</span>
-        <span>${latestSummary}</span>
+        <span>${defaultSummary}</span>
       </div>
     ` : '';
 
@@ -721,27 +823,23 @@ function renderMemberCards(reports) {
       </div>
       <div class="member-stat-row">
         <div class="member-stat-item">✅ ${t('done')} <strong>${doneCount}</strong></div>
-        <span class="member-stat-divider">|</span>
-        <div class="member-stat-item">🔄 ${t('inProgress')} <strong>${wipCount}</strong></div>
-        <span class="member-stat-divider">|</span>
-        <div class="member-stat-item">📅 ${t('todo')} <strong>${allItems.length - doneCount - wipCount}</strong></div>
       </div>
+      ${dateBtnsHTML}
       ${timelineHTML}
-      <div class="task-list">
-        ${taskListHTML}
+      <div class="task-list-wrapper">
+        <div class="task-list">${defaultTaskListHTML || `<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">${t('noData') || '데이터 없음'}</div>`}</div>
+        ${defaultIssuesHTML}
+        ${defaultSummaryHTML}
+        ${defaultDate ? `<div class="date-total-hours" style="text-align:right;font-size:12px;color:var(--text-muted);margin-top:8px;">업무시간: <strong>${defaultHours.toFixed(1)}h</strong></div>` : ''}
       </div>
-      ${issuesHTML}
-      ${summaryHTML}
     `;
 
-    // 미니 대시보드를 카드 내부 프로필 헤더 다음, task-list 이전에 삽입
-    // mini dashboard removed
-    const taskListEl = card.querySelector('.task-list');
-    if (taskListEl) {
-      // mini dashboard removed
-    } else {
-      card.appendChild(miniDash);
-    }
+    // 날짜 버튼 클릭 이벤트 연결
+    card.querySelectorAll('.date-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectMemberDate(btn.dataset.memberId, btn.dataset.date, card);
+      });
+    });
 
     container.appendChild(card);
   });

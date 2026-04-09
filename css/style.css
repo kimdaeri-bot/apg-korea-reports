@@ -2639,3 +2639,77 @@ html[lang="en"] .member-card .role {
   .ucal-event-type { display: none; }
   .guide-row { flex-direction: column; align-items: flex-start; }
 }
+
+/* ── 팀원 카드 날짜 선택 바 ── */
+.date-selector-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.date-selector-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding-top: 5px;
+  flex-shrink: 0;
+}
+
+.date-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.date-btn {
+  font-size: 11px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  border: 1px solid #dde1e7;
+  background: #f7f9fc;
+  color: #718096;
+  cursor: pointer;
+  transition: all 0.18s;
+  font-family: inherit;
+  font-weight: 500;
+}
+
+.date-btn:hover {
+  background: #eef2ff;
+  border-color: #6C5CE7;
+  color: #6C5CE7;
+}
+
+.date-btn.active {
+  background: #6C5CE7;
+  border-color: #6C5CE7;
+  color: #fff;
+  font-weight: 700;
+}
+
+.date-btn.date-btn-current {
+  border-color: #b5bac2;
+}
+
+.date-btn.date-btn-past {
+  opacity: 0.75;
+}
+
+.date-btn.date-btn-past.active {
+  opacity: 1;
+}
+
+.task-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.date-total-hours {
+  border-top: 1px solid #f0f4f8;
+  padding-top: 8px;
+}
