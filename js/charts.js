@@ -1,4 +1,4 @@
-/* charts.js — Chart.js 래퍼 */
+/* charts.js — Chart.js 래퍼 (i18n 지원) */
 
 let charts = {};
 
@@ -38,12 +38,13 @@ function destroyChart(id) {
 function renderMemberHoursChart(data) {
   destroyChart('memberHours');
   const ctx = document.getElementById('memberHoursChart').getContext('2d');
+  const unitLabel = typeof i18n !== 'undefined' ? i18n.t('hoursShort') : 'h';
   charts['memberHours'] = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: data.labels,
       datasets: [{
-        label: '업무시간',
+        label: typeof i18n !== 'undefined' ? i18n.t('hours') : '업무시간',
         data: data.values,
         backgroundColor: data.colors.map(c => c + 'cc'),
         borderColor: data.colors,
@@ -61,7 +62,7 @@ function renderMemberHoursChart(data) {
         tooltip: {
           ...CHART_DEFAULTS.plugins.tooltip,
           callbacks: {
-            label: ctx => ` ${ctx.parsed.x}시간`
+            label: ctx => ` ${ctx.parsed.x}${unitLabel}`
           }
         }
       },
@@ -85,12 +86,14 @@ function renderMemberHoursChart(data) {
 function renderCategoryChart(data) {
   destroyChart('category');
   const ctx = document.getElementById('categoryChart').getContext('2d');
-  const COLORS = {
-    '영업': '#6C5CE7',
-    '기획': '#00B894',
-    '운영': '#FDCB6E',
-    '행정': '#74B9FF',
-    '미팅': '#E17055',
+  const unitLabel = typeof i18n !== 'undefined' ? i18n.t('hoursShort') : 'h';
+  // 카테고리 색상: 번역된 라벨 → 색상 매핑
+  const BASE_COLORS = {
+    '영업': '#6C5CE7', 'Sales': '#6C5CE7',
+    '기획': '#00B894', 'Planning': '#00B894',
+    '운영': '#FDCB6E', 'Operations': '#FDCB6E',
+    '행정': '#74B9FF', 'Admin': '#74B9FF',
+    '미팅': '#E17055', 'Meeting': '#E17055',
   };
   charts['category'] = new Chart(ctx, {
     type: 'doughnut',
@@ -98,8 +101,8 @@ function renderCategoryChart(data) {
       labels: data.labels,
       datasets: [{
         data: data.values,
-        backgroundColor: data.labels.map(l => (COLORS[l] || '#888') + 'cc'),
-        borderColor: data.labels.map(l => COLORS[l] || '#888'),
+        backgroundColor: data.labels.map(l => (BASE_COLORS[l] || '#888') + 'cc'),
+        borderColor: data.labels.map(l => BASE_COLORS[l] || '#888'),
         borderWidth: 2,
         hoverOffset: 6,
       }]
@@ -112,7 +115,7 @@ function renderCategoryChart(data) {
         tooltip: {
           ...CHART_DEFAULTS.plugins.tooltip,
           callbacks: {
-            label: ctx => ` ${ctx.label}: ${ctx.parsed}시간`
+            label: ctx => ` ${ctx.label}: ${ctx.parsed}${unitLabel}`
           }
         }
       }
@@ -123,15 +126,45 @@ function renderCategoryChart(data) {
 /** 상태 도넛 차트 */
 function renderStatusChart(data) {
   destroyChart('status');
+  const ctx = document.getElementById('statusChart').getContext('2d');
+  const countUnit = typeof i18n !== 'undefined' && i18n.lang === 'en' ? '' : '건';
+  // 순서 고정: done(초록), wip(노랑), todo(파랑)
+  const STATUS_COLORS_ORDERED = ['#00B894', '#FDCB6E', '#74B9FF'];
+  charts['status'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        data: data.values,
+        backgroundColor: STATUS_COLORS_ORDERED.map(c => c + 'cc'),
+        borderColor: STATUS_COLORS_ORDERED,
+        borderWidth: 2,
+        hoverOffset: 6,
+      }]
+    },
+    options: {
+      ...CHART_DEFAULTS,
+      cutout: '68%',
+      plugins: {
+        ...CHART_DEFAULTS.plugins,
+        tooltip: {
+          ...CHART_DEFAULTS.plugins.tooltip,
+          callbacks: {
+            label: ctx => ` ${ctx.label}: ${ctx.parsed}${countUnit}`
+          }
+        }
+      }
+    }
+  });
 }
 
 /** 주간/월간 업무시간 추이 라인 차트 */
 function renderWeeklyTrendChart(data) {
   destroyChart('weeklyTrend');
   const ctx = document.getElementById('weeklyTrendChart').getContext('2d');
-  // 데이터셋에 type:'bar'가 있으면 바 차트로 렌더
   const hasBar = data.datasets && data.datasets.some(ds => ds.type === 'bar');
   const chartType = hasBar ? 'bar' : 'line';
+  const unitLabel = typeof i18n !== 'undefined' ? i18n.t('hoursShort') : 'h';
 
   charts['weeklyTrend'] = new Chart(ctx, {
     type: chartType,
@@ -165,7 +198,7 @@ function renderWeeklyTrendChart(data) {
           mode: 'index',
           intersect: false,
           callbacks: {
-            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}시간`
+            label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y}${unitLabel}`
           }
         }
       },

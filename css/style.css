@@ -99,6 +99,64 @@ body {
   font-size: 13px;
 }
 
+/* ── LANG TOGGLE ── */
+.lang-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 2px;
+  border: 1px solid var(--border);
+}
+
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 10px;
+  border-radius: 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+
+.lang-btn:hover {
+  background: rgba(108,92,231,0.12);
+  color: var(--accent);
+}
+
+.lang-btn.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(108,92,231,0.35);
+}
+
+/* 영문 모드일 때 영문 폰트 최적화 */
+html[lang="en"] body {
+  font-family: 'Inter', 'Noto Sans KR', system-ui, -apple-system, sans-serif;
+  letter-spacing: 0.01em;
+  line-height: 1.55;
+}
+
+html[lang="en"] .stat-label,
+html[lang="en"] .section-title {
+  letter-spacing: 0.5px;
+  font-size: 11px;
+}
+
+html[lang="en"] .member-card .role {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
 /* 헤더 근무시간 뱃지 */
 .work-hours-header-badge {
   display: inline-flex;

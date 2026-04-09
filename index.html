@@ -77,24 +77,24 @@
     <!-- STAT STRIP -->
     <div class="stat-strip">
       <div class="stat-card">
-        <div class="stat-label">총 업무시간</div>
+        <div class="stat-label" id="stat-label-hours">총 업무시간</div>
         <div class="stat-value" id="stat-hours" style="color:#6C5CE7">—</div>
-        <div class="stat-sub">시간</div>
+        <div class="stat-sub" id="stat-sub-hours">시간</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">총 업무 건수</div>
+        <div class="stat-label" id="stat-label-tasks">총 업무 건수</div>
         <div class="stat-value" id="stat-tasks" style="color:#00B894">—</div>
         <div class="stat-sub" id="stat-submitters">건</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">완료율</div>
+        <div class="stat-label" id="stat-label-done">완료율</div>
         <div class="stat-value" id="stat-done" style="color:#FDCB6E">—</div>
-        <div class="stat-sub">완료 비율</div>
+        <div class="stat-sub" id="stat-sub-done">완료 비율</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">이슈</div>
+        <div class="stat-label" id="stat-label-issues">이슈</div>
         <div class="stat-value" id="stat-issues" style="color:#E17055">—</div>
-        <div class="stat-sub">건 접수</div>
+        <div class="stat-sub" id="stat-sub-issues">건 접수</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">보고 제출률</div>
@@ -119,7 +119,7 @@
       <div class="chart-card">
         <div class="chart-card-title">
           <div class="icon" style="background:rgba(108,92,231,0.2)">👤</div>
-          팀원별 업무시간
+          <span id="chart-title-member">팀원별 업무시간</span>
         </div>
         <div class="chart-wrap">
           <canvas id="memberHoursChart"></canvas>
@@ -128,7 +128,7 @@
       <div class="chart-card">
         <div class="chart-card-title">
           <div class="icon" style="background:rgba(0,184,148,0.2)">🗂</div>
-          업무 카테고리 분포
+          <span id="chart-title-category">업무 카테고리 분포</span>
         </div>
         <div class="chart-wrap">
           <canvas id="categoryChart"></canvas>
@@ -137,7 +137,7 @@
       <div class="chart-card">
         <div class="chart-card-title">
           <div class="icon" style="background:rgba(253,203,110,0.2)">📋</div>
-          업무 상태 분포
+          <span id="chart-title-status">업무 상태 분포</span>
         </div>
         <div class="chart-wrap">
           <canvas id="statusChart"></canvas>
@@ -158,7 +158,7 @@
     <div class="daily-summary-panel" id="dailySummaryPanel" style="display:none"></div>
 
     <!-- MEMBER CARDS -->
-    <p class="section-title">👥 팀원별 상세</p>
+    <p class="section-title" id="section-member-cards">👥 팀원별 상세</p>
     <div class="members-grid" id="memberCards">
       <!-- JS로 렌더링 -->
     </div>
@@ -166,11 +166,11 @@
     <!-- BOTTOM: ISSUES + MISSING -->
     <div class="bottom-grid">
       <div class="issue-board">
-        <p class="section-title" style="margin-bottom:16px">⚠️ 이슈 보드</p>
+        <p class="section-title" id="section-issue-board" style="margin-bottom:16px">⚠️ 이슈 보드</p>
         <div class="issue-list" id="issueList"></div>
       </div>
       <div class="missing-report">
-        <p class="section-title" style="margin-bottom:16px">🔴 미제출 현황</p>
+        <p class="section-title" id="section-missing-report" style="margin-bottom:16px">🔴 미제출 현황</p>
         <div class="missing-list" id="missingList"></div>
       </div>
     </div>
@@ -184,7 +184,7 @@
     <!-- ① 월별 캘린더 뷰 -->
     <div class="schedule-section-block">
       <div class="schedule-section-header">
-        <p class="section-title" style="margin-bottom:0">📅 월별 캘린더</p>
+        <p class="section-title" id="section-calendar" style="margin-bottom:0">📅 월별 캘린더</p>
         <span class="sched-month-label" id="schedule-month-label"></span>
       </div>
       <div class="schedule-card">
@@ -200,7 +200,7 @@
     <!-- ② 일정 목록 -->
     <div class="schedule-section-block">
       <div class="schedule-list-header">
-        <p class="section-title" style="margin-bottom:0">📋 일정 목록</p>
+        <p class="section-title" id="section-schedule-list" style="margin-bottom:0">📋 일정 목록</p>
         <div class="schedule-filter-wrap">
           <select class="member-filter-select" id="memberFilterSelect">
             <option value="all">전체 팀원</option>
@@ -217,20 +217,20 @@
 
     <!-- ③ 일정 등록 가이드 -->
     <div class="schedule-section-block">
-      <p class="section-title">💬 일정 등록 가이드</p>
+      <p class="section-title" id="section-schedule-guide">💬 일정 등록 가이드</p>
       <div class="schedule-card guide-card">
         <div class="guide-desc">카카오톡 채팅에 아래 형식으로 입력하면 자동으로 일정이 등록됩니다.</div>
         <div class="guide-commands">
           <div class="guide-row">
-            <span class="guide-badge badge-fieldwork">외근</span>
+            <span class="guide-badge badge-fieldwork" id="guide-badge-fieldwork">외근</span>
             <code>/외근 4/10 강남 EL AL 사무실 GSSA 미팅 10:00-12:00</code>
           </div>
           <div class="guide-row">
-            <span class="guide-badge badge-leave">휴가</span>
+            <span class="guide-badge badge-leave" id="guide-badge-leave">휴가</span>
             <code>/휴가 4/14 연차 개인사정</code>
           </div>
           <div class="guide-row">
-            <span class="guide-badge badge-general">기타</span>
+            <span class="guide-badge badge-general" id="guide-badge-general">기타</span>
             <code>/일정 4/12 14:00 항공협회 정기회의</code>
           </div>
         </div>
