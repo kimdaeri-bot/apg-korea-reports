@@ -118,30 +118,6 @@ function setHeaderDate() {
 }
 
 /* ── PERIOD FILTER ── */
-function getFilteredReports() {
-  if (!allData) return [];
-  const now     = new Date();
-  const reports = allData.reports;
-
-  if (currentPeriod === 'this-week') {
-    const mon = getMonday(now);
-    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
-    return reports.filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; });
-  }
-  if (currentPeriod === 'last-week') {
-    const mon     = getMonday(now);
-    const lastMon = new Date(mon); lastMon.setDate(mon.getDate() - 7);
-    const lastSun = new Date(mon); lastSun.setDate(mon.getDate() - 1);
-    return reports.filter(r => { const d = new Date(r.date); return d >= lastMon && d <= lastSun; });
-  }
-  if (currentPeriod === 'this-month') {
-    return reports.filter(r => {
-      const d = new Date(r.date);
-      return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-    });
-  }
-  return reports;
-}
 
 function getMonday(d) {
   const date = new Date(d);
@@ -152,14 +128,97 @@ function getMonday(d) {
   return date;
 }
 
+// 주차 번호 계산 (ISO-like, 월 기준)
+function getWeekOfMonth(d) {
+  const firstDay = new Date(d.getFullYear(), d.getMonth(), 1).getDay();
+  return Math.ceil((d.getDate() + (firstDay === 0 ? 6 : firstDay - 1)) / 7);
+}
+
+function getFilteredReports() {
+  if (!allData) return [];
+  const now     = new Date();
+  const reports = allData.reports;
+
+  if (workMode === 'daily') {
+    const dateStr = dailyDate.toISOString().split('T')[0];
+    return reports.filter(r => r.date === dateStr);
+  }
+
+  if (workMode === 'weekly') {
+    const base = new Date(now);
+    base.setDate(base.getDate() + weeklyOffset * 7);
+    const mon = getMonday(base);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    return reports.filter(r => { const d = new Date(r.date); return d >= mon && d <= sun; });
+  }
+
+  if (workMode === 'monthly') {
+    const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+    return reports.filter(r => {
+      const d = new Date(r.date);
+      return d.getFullYear() === base.getFullYear() && d.getMonth() === base.getMonth();
+    });
+  }
+
+  return reports;
+}
+
+// 레거시 — 일정 뷰에서도 사용
+function getFilteredReportsLegacy() {
+  if (!allData) return [];
+  return allData.reports;
+}
+
 /* ── RENDER (업무현황) ── */
 function render() {
+  updatePeriodUI();
   const reports = getFilteredReports();
   renderStats(reports);
   renderCharts(reports);
   renderMemberCards(reports);
   renderIssues(reports);
   renderMissing(reports);
+}
+
+/* ── 기간 UI 업데이트 ── */
+function updatePeriodUI() {
+  const now = new Date();
+
+  // 섹션 타이틀
+  const titleEl = document.getElementById('charts-section-title');
+  const trendTitle = document.getElementById('trend-chart-title');
+
+  if (workMode === 'daily') {
+    if (titleEl) titleEl.textContent = '📊 일일 현황';
+    if (trendTitle) trendTitle.textContent = '팀원별 업무시간';
+    // 일일 네비 표시
+    document.getElementById('daily-nav').style.display = 'flex';
+    document.getElementById('weekly-nav').style.display = 'none';
+    document.getElementById('monthly-nav').style.display = 'none';
+  } else if (workMode === 'weekly') {
+    if (titleEl) titleEl.textContent = '📊 주간 현황';
+    if (trendTitle) trendTitle.textContent = '주간 업무시간 추이';
+    document.getElementById('daily-nav').style.display = 'none';
+    document.getElementById('weekly-nav').style.display = 'flex';
+    document.getElementById('monthly-nav').style.display = 'none';
+    // 주간 라벨
+    const base = new Date(now);
+    base.setDate(base.getDate() + weeklyOffset * 7);
+    const mon = getMonday(base);
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 4); // 금요일
+    const weekNum = getWeekOfMonth(mon);
+    const label = `${mon.getFullYear()}년 ${mon.getMonth()+1}월 ${weekNum}주차 (${mon.getMonth()+1}/${mon.getDate()}~${sun.getMonth()+1}/${sun.getDate()})`;
+    document.getElementById('weekly-label').textContent = label;
+  } else if (workMode === 'monthly') {
+    if (titleEl) titleEl.textContent = '📊 월간 현황';
+    if (trendTitle) trendTitle.textContent = '일별 업무시간 추이';
+    document.getElementById('daily-nav').style.display = 'none';
+    document.getElementById('weekly-nav').style.display = 'none';
+    document.getElementById('monthly-nav').style.display = 'flex';
+    // 월간 라벨
+    const base = new Date(now.getFullYear(), now.getMonth() + monthlyOffset, 1);
+    document.getElementById('monthly-label').textContent = `${base.getFullYear()}년 ${base.getMonth()+1}월`;
+  }
 }
 
 /* ── STATS ── */

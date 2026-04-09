@@ -1,6 +1,17 @@
 {
   "fieldwork": [],
-  "leave": [],
+  "leave": [
+    {
+      "date": "2026-04-16",
+      "endDate": "2026-04-16",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "type": "연차",
+      "days": 1,
+      "status": "approved",
+      "note": ""
+    }
+  ],
   "general": [
     {
       "date": "2026-04-14",
