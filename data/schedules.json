@@ -142,6 +142,16 @@
       "startTime": "12:00",
       "endTime": "13:00",
       "status": "confirmed"
+    },
+    {
+      "date": "2026-04-22",
+      "member": "정경준",
+      "memberId": "7973766521",
+      "title": "여객부 저녁 회식",
+      "location": "",
+      "startTime": "18:00",
+      "endTime": null,
+      "status": "confirmed"
     }
   ]
 }
