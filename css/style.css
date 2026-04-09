@@ -2300,32 +2300,19 @@ html[lang="en"] .member-card .role {
 }
 
 /* ════════════════════════════════════════
-   팀원 상세 그리드 (카드 + 미니 대시보드)
+   팀원 미니 대시보드 (카드 내부 내장)
    ════════════════════════════════════════ */
 
-.member-detail-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 0;
-}
-
-/* ── 미니 대시보드 카드 ── */
+/* ── 미니 대시보드 (카드 내부) ── */
 .member-mini-dashboard {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 20px;
-  border: 1px solid #e0e4e8;
+  background: #f7f9fc;
+  border-radius: 10px;
+  padding: 14px 16px;
+  border: 1px solid #e8edf2;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  transition: all 0.25s;
-  height: fit-content;
-}
-
-.member-mini-dashboard:hover {
-  background: var(--card-hover);
-  box-shadow: var(--shadow);
+  gap: 12px;
+  margin: 0 0 12px 0;
 }
 
 .mini-dash-header {
@@ -2525,12 +2512,110 @@ html[lang="en"] .member-card .role {
   font-weight: 800;
 }
 
+/* ── 요일 바 클릭 힌트 ── */
+.mini-click-hint {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.7;
+}
+
+/* 클릭 가능한 요일 컬럼 */
+.mini-weekly-clickable {
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.mini-weekly-clickable:hover {
+  transform: translateY(-2px);
+}
+.mini-weekly-clickable:hover .mini-weekly-bar-fill {
+  filter: brightness(1.15);
+}
+
+/* 활성화된 요일 */
+.mini-weekly-active .mini-weekly-bar-fill {
+  filter: brightness(1.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.mini-weekly-active .mini-weekly-label,
+.mini-weekly-active .mini-weekly-val {
+  font-weight: 800;
+  color: #2d3748;
+}
+
+/* 요일 상세 패널 */
+.mini-weekly-detail {
+  background: #fff;
+  border: 1px solid #e0e4e8;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: -4px;
+  font-size: 12px;
+  animation: miniDetailFadeIn 0.15s ease;
+}
+
+@keyframes miniDetailFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.mini-detail-header {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2d3748;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e8edf2;
+}
+
+.mini-detail-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.mini-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mini-detail-status {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.mini-detail-task {
+  flex: 1;
+  font-size: 12px;
+  color: #2d3748;
+}
+
+.mini-detail-hours {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.mini-detail-total {
+  font-size: 11px;
+  font-weight: 700;
+  color: #718096;
+  text-align: right;
+  padding-top: 6px;
+  border-top: 1px solid #e8edf2;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .stat-strip .stat-card { flex: 1 1 calc(50% - 16px); }
   .charts-grid { grid-template-columns: 1fr; }
   .members-grid { flex-direction: column; }
-  .member-detail-grid { grid-template-columns: 1fr; }
+  /* .member-detail-grid 제거됨 — 미니 대시보드가 카드 내부에 내장됨 */
   .bottom-grid { grid-template-columns: 1fr; }
   .header { padding: 0 16px; }
   .header-title { font-size: 15px; }

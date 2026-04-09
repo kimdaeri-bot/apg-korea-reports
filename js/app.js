@@ -734,15 +734,16 @@ function renderMemberCards(reports) {
       ${summaryHTML}
     `;
 
-    // 2-column grid wrapper: left = member card, right = mini dashboard
+    // 미니 대시보드를 카드 내부 프로필 헤더 다음, task-list 이전에 삽입
     const miniDash = renderMemberMiniDashboard(member, memberReports);
+    const taskListEl = card.querySelector('.task-list');
+    if (taskListEl) {
+      card.insertBefore(miniDash, taskListEl);
+    } else {
+      card.appendChild(miniDash);
+    }
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'member-detail-grid';
-    wrapper.appendChild(card);
-    wrapper.appendChild(miniDash);
-
-    container.appendChild(wrapper);
+    container.appendChild(card);
   });
 
   if (container.children.length === 0) {
@@ -829,23 +830,27 @@ function renderMemberMiniDashboard(member, memberReports) {
   if (workMode === 'weekly' || workMode === 'daily') {
     const DAYS_SHORT = getDaysShort();
     const dayHours = {};
+    const dayDateMap = {}; // dayIdx → dateStr
     memberReports.forEach(r => {
       const d = new Date(r.date);
       const idx = d.getDay() - 1; // 0=mon
       if (idx >= 0 && idx <= 4) {
         dayHours[idx] = (dayHours[idx] || 0) + (r.totalHours || 0);
+        dayDateMap[idx] = r.date; // 가장 최근 날짜가 저장됨
       }
     });
     const maxH = Math.max(...Object.values(dayHours), 1);
+    const memberId = member.id;
 
     weeklyBarsHTML = `
-      <div class="mini-section-title">요일별 업무시간</div>
-      <div class="mini-weekly-bars">
+      <div class="mini-section-title">요일별 업무시간 <span class="mini-click-hint">(클릭하면 업무 내용 보기)</span></div>
+      <div class="mini-weekly-bars" data-member-id="${memberId}">
         ${DAYS_SHORT.map((d, i) => {
           const h   = dayHours[i] || 0;
           const pct = Math.round(h / maxH * 100);
+          const hasData = h > 0;
           return `
-            <div class="mini-weekly-col">
+            <div class="mini-weekly-col ${hasData ? 'mini-weekly-clickable' : ''}" data-day="${i}" data-member-id="${memberId}">
               <div class="mini-weekly-bar-wrap">
                 <div class="mini-weekly-bar-fill" style="height:${pct}%;background:${member.color}cc"></div>
               </div>
@@ -853,7 +858,8 @@ function renderMemberMiniDashboard(member, memberReports) {
               <div class="mini-weekly-val">${h > 0 ? h.toFixed(0)+'h' : '-'}</div>
             </div>`;
         }).join('')}
-      </div>`;
+      </div>
+      <div class="mini-weekly-detail" id="mini-detail-${memberId}" style="display:none"></div>`;
   } else if (workMode === 'monthly') {
     // 월간 모드: 주차별 요약
     const weekMap = {};
@@ -940,6 +946,67 @@ function renderMemberMiniDashboard(member, memberReports) {
     ${weeklyBarsHTML}
     ${prevCompareHTML}
   `;
+
+  // 요일 바 클릭 이벤트 (주간/일일 모드에서만)
+  if (workMode === 'weekly' || workMode === 'daily') {
+    const cols = dashEl.querySelectorAll('.mini-weekly-clickable');
+    cols.forEach(col => {
+      col.addEventListener('click', () => {
+        const dayIdx   = parseInt(col.dataset.day, 10);
+        const memberId = col.dataset.memberId;
+        const detailEl = dashEl.querySelector(`#mini-detail-${memberId}`);
+        if (!detailEl) return;
+
+        // 이미 같은 날 클릭 → 접기
+        if (col.classList.contains('mini-weekly-active')) {
+          col.classList.remove('mini-weekly-active');
+          detailEl.style.display = 'none';
+          detailEl.innerHTML = '';
+          return;
+        }
+
+        // 다른 날 클릭 → 기존 active 해제 후 새로 표시
+        cols.forEach(c => c.classList.remove('mini-weekly-active'));
+        col.classList.add('mini-weekly-active');
+
+        // 해당 요일 보고서 찾기
+        const targetReports = memberReports.filter(r => {
+          const d   = new Date(r.date);
+          const idx = d.getDay() - 1;
+          return idx === dayIdx;
+        });
+
+        if (targetReports.length === 0) {
+          detailEl.style.display = 'none';
+          return;
+        }
+
+        // 날짜 포맷
+        const WEEKDAYS_SHORT = ['월', '화', '수', '목', '금'];
+        const dateStr  = targetReports[0].date;
+        const dateObj  = new Date(dateStr);
+        const mStr     = `${dateObj.getMonth()+1}월 ${dateObj.getDate()}일`;
+        const dayLabel = WEEKDAYS_SHORT[dayIdx] || '';
+        const dayTotalH = targetReports.reduce((s, r) => s + (r.totalHours || 0), 0);
+
+        const allDayItems = targetReports.flatMap(r => r.items);
+        const itemsHTML = allDayItems.map(item => `
+          <div class="mini-detail-item">
+            <span class="mini-detail-status">${statusIcon(item.status)}</span>
+            <span class="mini-detail-task">${item.task}</span>
+            <span class="mini-detail-hours">(${item.hours}h)</span>
+          </div>
+        `).join('');
+
+        detailEl.innerHTML = `
+          <div class="mini-detail-header">▼ ${mStr}(${dayLabel}) 업무 내용</div>
+          <div class="mini-detail-items">${itemsHTML}</div>
+          <div class="mini-detail-total">업무시간: ${dayTotalH.toFixed(1)}h</div>
+        `;
+        detailEl.style.display = 'block';
+      });
+    });
+  }
 
   return dashEl;
 }
