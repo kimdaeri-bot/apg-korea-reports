@@ -1732,34 +1732,11 @@ html[lang="en"] .member-card .role {
   font-weight: 700;
 }
 
-/* ── 일정 카드 컨테이너: 개인(좌) + 공통(우) 레이아웃 ── */
+/* ── 일정 카드 컨테이너 ── */
 #scheduleCardsList {
   display: flex;
   flex-direction: column;
   gap: 16px;
-}
-#scheduleCardsList.has-common {
-  flex-direction: row;
-  align-items: flex-start;
-}
-#scheduleCardsList.has-common > .sched-personal-section {
-  flex: 1;
-  min-width: 0;
-}
-#scheduleCardsList.has-common > .sched-common-section {
-  width: 320px;
-  flex-shrink: 0;
-  position: sticky;
-  top: 20px;
-}
-@media (max-width: 900px) {
-  #scheduleCardsList.has-common {
-    flex-direction: column;
-  }
-  #scheduleCardsList.has-common > .sched-common-section {
-    width: 100%;
-    position: static;
-  }
 }
 
 .sched-common-section,
