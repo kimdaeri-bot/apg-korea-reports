@@ -824,43 +824,83 @@ function renderScheduleCards() {
     return;
   }
 
+  // 날짜 + 멤버 기준 그룹핑
+  // groupMap: { "2025-04-16___정경준": [item, item, ...] }
+  const groupMap = {};
+  const groupOrder = []; // 순서 보존 (날짜 오름차순, 같은 날짜 내 멤버명 오름차순)
+
   items.forEach(item => {
-    const tc    = TYPE_COLORS[item.type];
-    const color = getMemberColor(item.member);
-    const badge = item.status === 'confirmed' || item.status === 'approved' ? 'confirmed' :
-                  item.status === 'pending' ? 'pending' : 'cancelled';
-    const time  = item.startTime
-      ? `<div class="sched-row"><span class="sched-icon">⏰</span><span>${item.startTime}${item.endTime ? ' ~ ' + item.endTime : ''}</span></div>`
-      : (item.days ? `<div class="sched-row"><span class="sched-icon">📆</span><span>${item.days}일</span></div>` : '');
-    const loc   = item.location
-      ? `<div class="sched-row"><span class="sched-icon">📍</span><span>${item.location}</span></div>`
-      : '';
-    const note  = item.note
-      ? `<div class="sched-row"><span class="sched-icon">📝</span><span>${item.note}</span></div>`
-      : '';
+    const key = `${item.date}___${item.member}`;
+    if (!groupMap[key]) {
+      groupMap[key] = { date: item.date, member: item.member, items: [] };
+      groupOrder.push(key);
+    }
+    groupMap[key].items.push(item);
+  });
 
-    const dateStr = item.date === item.endDate
-      ? fmtFullDate(item.date)
-      : `${fmtFullDate(item.date)} ~ ${fmtFullDate(item.endDate)}`;
+  // 날짜 오름차순 → 같은 날짜 내 멤버명 오름차순
+  groupOrder.sort((a, b) => {
+    const ga = groupMap[a];
+    const gb = groupMap[b];
+    const dateCmp = ga.date.localeCompare(gb.date);
+    if (dateCmp !== 0) return dateCmp;
+    return ga.member.localeCompare(gb.member);
+  });
 
-    const card     = document.createElement('div');
-    card.className = 'sched-card';
+  groupOrder.forEach(key => {
+    const group = groupMap[key];
+    const color = getMemberColor(group.member);
+    const dateStr = fmtFullDate(group.date);
+
+    // 그룹 내 일정을 시간 오름차순 정렬
+    // 시간 없는 항목(휴가 등)은 뒤로
+    group.items.sort((a, b) => {
+      const ta = a.startTime || 'ZZ:ZZ';
+      const tb = b.startTime || 'ZZ:ZZ';
+      return ta.localeCompare(tb);
+    });
+
+    // 일정 목록 HTML
+    const itemsHtml = group.items.map(item => {
+      const tc = TYPE_COLORS[item.type] || TYPE_COLORS.general;
+      const badge = item.status === 'confirmed' || item.status === 'approved' ? 'confirmed' :
+                    item.status === 'pending' ? 'pending' : 'cancelled';
+
+      let timeStr = '';
+      if (item.startTime) {
+        timeStr = item.endTime ? `${item.startTime}~${item.endTime}` : item.startTime;
+      } else if (item.days) {
+        timeStr = `${item.days}일`;
+      }
+
+      const titleText = item.title || '';
+      const locText   = item.location ? ` · ${item.location}` : '';
+      const noteText  = item.note ? ` · ${item.note}` : '';
+      const mainText  = `${titleText}${locText}${noteText}`;
+
+      return `
+        <div class="sched-group-item" style="border-left:3px solid ${tc.dot || tc.bg}">
+          <span class="sched-type-badge sched-type-badge-sm" style="background:${tc.bg};color:${tc.text}">${tc.label}</span>
+          ${timeStr ? `<span class="sched-group-time">${timeStr}</span>` : ''}
+          <span class="sched-group-title">${mainText}</span>
+          <span class="status-badge ${badge} sched-status-sm">${STATUS_LABEL[item.status]}</span>
+        </div>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = 'sched-card sched-card-grouped';
     card.style.setProperty('--member-color', color);
     card.innerHTML = `
       <div class="sched-card-top">
-        <div class="sched-left">
-          <span class="sched-type-badge" style="background:${tc.bg};color:${tc.text}">${tc.label}</span>
-          <span class="sched-date-text">📅 ${dateStr}</span>
-        </div>
-        <span class="status-badge ${badge}">${STATUS_LABEL[item.status]}</span>
+        <span class="sched-date-text">📅 ${dateStr}</span>
       </div>
-      <div class="sched-title">${item.title}</div>
       <div class="sched-member-chip">
         <div class="sched-member-dot" style="background:${color}"></div>
-        <span style="color:${color};font-weight:700;font-size:13px">${item.member}</span>
+        <span style="color:${color};font-weight:700;font-size:13px">👤 ${group.member}</span>
       </div>
-      <div class="sched-details">
-        ${time}${loc}${note}
+      <div class="sched-group-divider"></div>
+      <div class="sched-group-items">
+        ${itemsHtml}
       </div>
     `;
     container.appendChild(card);

@@ -1479,6 +1479,74 @@ body {
   flex-shrink: 0;
 }
 
+/* ── 그룹 카드 (날짜+멤버 통합) ── */
+.sched-card-grouped .sched-card-top {
+  margin-bottom: 6px;
+}
+
+.sched-card-grouped .sched-date-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+}
+
+.sched-card-grouped .sched-member-chip {
+  margin-bottom: 6px;
+}
+
+.sched-group-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 8px 0 10px;
+}
+
+.sched-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sched-group-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #f7f9fc;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.sched-type-badge-sm {
+  padding: 1px 7px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.sched-group-time {
+  font-size: 11px;
+  color: #718096;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sched-group-title {
+  color: #2d3748;
+  font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sched-status-sm {
+  font-size: 9px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+}
+
 /* ── 일정 등록 가이드 ── */
 .guide-card {
   display: flex;
