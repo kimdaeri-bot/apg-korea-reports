@@ -1195,6 +1195,24 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* ── NAV TABS ── */
+function switchToTab(view) {
+  document.querySelectorAll('.nav-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  currentView = view;
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('view-' + view).classList.add('active');
+}
+
+// URL ?tab=schedule 지원
+(function() {
+  const params = new URLSearchParams(location.search);
+  const tab = params.get('tab');
+  if (tab === 'schedule') {
+    document.addEventListener('DOMContentLoaded', () => switchToTab('schedule'));
+  }
+})();
+
 document.querySelectorAll('.nav-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
