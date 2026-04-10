@@ -37,7 +37,8 @@
   <div class="nav-tabs">
     <button class="nav-tab active" data-view="work" data-i18n="nav_work">📋 업무현황</button>
     <button class="nav-tab" data-view="schedule" data-i18n="nav_schedule">📅 일정관리</button>
-    <a class="nav-tab nav-tab-link" href="https://kimdaeri-bot.github.io/private-docs/apg-pending-cases.html" target="_blank">📋 Pending Cases</a>
+    <button class="nav-tab" data-view="pending">📋 Pending Cases</button>
+
   </div>
 </nav>
 
@@ -239,6 +240,10 @@
     </div>
 
   </div><!-- /view-schedule -->
+
+  <div class="view-section" id="view-pending" style="padding:0;">
+    <iframe id="pending-iframe" src="https://kimdaeri-bot.github.io/private-docs/apg-pending-cases.html" style="width:100%;height:calc(100vh - 70px);border:none;"></iframe>
+  </div>
 
 </main>
 
