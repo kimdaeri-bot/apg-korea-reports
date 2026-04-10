@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APG Korea 업무대시보드</title>
+  <script>
+    // Apply saved lang before render to prevent flash
+    (function(){
+      const l = localStorage.getItem('apg-lang') || 'ko';
+      document.documentElement.setAttribute('lang', l === 'en' ? 'en' : 'ko');
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-logo">A</div>
+    <h1 class="header-title">APG <span>Korea</span> 업무대시보드</h1>
+  </div>
+  <div class="header-right">
+    <div class="date-display" id="currentDate"></div>
+    <div id="workHoursBadge" class="work-hours-header-badge" title="팀원 근무시간 요약">🕐 근무시간</div>
+    <div class="lang-toggle" id="langToggle">
+      <button class="lang-btn" id="btn-ko" data-lang="ko">🇰🇷 KO</button>
+      <button class="lang-btn" id="btn-en" data-lang="en">🇺🇸 EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── NAV TABS ── -->
+<nav class="nav-tabs-bar">
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="schedule" data-i18n="nav_schedule">📅 일정관리</button>
+    <button class="nav-tab" data-view="pending">📋 Pending Cases</button>
+
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main" id="app">
+
+  <!-- ====== VIEW: 업무현황 ====== -->
+  
+
+  <!-- ====== VIEW: 일정관리 ====== -->
+  <div class="view-section" id="view-schedule">
+
+    <!-- ① 월별 캘린더 뷰 -->
+    <div class="schedule-section-block">
+      <div class="schedule-section-header">
+        <p class="section-title" id="section-calendar" style="margin-bottom:0">📅 월별 캘린더</p>
+        <span class="sched-month-label" id="schedule-month-label"></span>
+      </div>
+      <div class="schedule-card">
+        <div class="unified-calendar" id="unifiedCalendar"></div>
+        <!-- 날짜 클릭 시 상세 팝업 -->
+        <div class="cal-detail-popup" id="calDetailPopup" style="display:none">
+          <div class="cal-detail-date" id="calDetailDate"></div>
+          <div class="cal-detail-list" id="calDetailList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 일정 목록 -->
+    <div class="schedule-section-block">
+      <div class="schedule-list-header">
+        <p class="section-title" id="section-schedule-list" style="margin-bottom:0">📋 일정 목록</p>
+        <div class="schedule-filter-wrap">
+          <select class="member-filter-select" id="memberFilterSelect">
+            <option value="all">전체 팀원</option>
+            <option value="윤심">윤심</option>
+            <option value="정근아">정근아</option>
+            <option value="권은미">권은미</option>
+            <option value="이정훈">이정훈</option>
+            <option value="정경준">정경준</option>
+          </select>
+        </div>
+      </div>
+      <div class="schedule-cards-list" id="scheduleCardsList"></div>
+    </div>
+
+    <!-- ③ 일정 등록 가이드 -->
+    <div class="schedule-section-block">
+      <p class="section-title" id="section-schedule-guide">💬 일정 등록 가이드</p>
+      <div class="schedule-card guide-card">
+        <div class="guide-desc">카카오톡 채팅에 아래 형식으로 입력하면 자동으로 일정이 등록됩니다.</div>
+        <div class="guide-commands">
+          <div class="guide-row">
+            <span class="guide-badge badge-fieldwork" id="guide-badge-fieldwork">외근</span>
+            <code>/외근 4/10 강남 EL AL 사무실 GSSA 미팅 10:00-12:00</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-leave" id="guide-badge-leave">휴가</span>
+            <code>/휴가 4/14 연차 개인사정</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-general" id="guide-badge-general">기타</span>
+            <code>/일정 4/12 14:00 항공협회 정기회의</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-schedule -->
+
+  <div class="view-section" id="view-pending">
+    <div style="max-width:1100px;margin:0 auto;padding:24px;">
+      <div id="pending-stats" style="display:flex;gap:16px;margin-bottom:20px;"></div>
+      <div id="pending-empty" style="display:none;text-align:center;padding:40px;color:#a0aec0;">등록된 케이스가 없습니다.</div>
+      <table id="pending-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f7f9fc;text-align:left;">
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">메일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">접수일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">항공사</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">내용</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">상태</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">완료일</th>
+          </tr>
+        </thead>
+        <tbody id="pending-tbody"></tbody>
+      </table>
+      <div id="pending-updated" style="margin-top:16px;color:#a0aec0;font-size:12px;"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
