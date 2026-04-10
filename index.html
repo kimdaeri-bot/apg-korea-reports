@@ -108,24 +108,25 @@
 
   </div><!-- /view-schedule -->
 
-  <div class="view-section" id="view-pending">
-    <div style="max-width:1100px;margin:0 auto;padding:24px;">
-      <div id="pending-stats" style="display:flex;gap:16px;margin-bottom:20px;"></div>
-      <div id="pending-empty" style="display:none;text-align:center;padding:40px;color:#a0aec0;">등록된 케이스가 없습니다.</div>
-      <table id="pending-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+    <div class="view-section" id="view-pending">
+    <div style="max-width:1100px;margin:0 auto;padding:32px 24px;">
+      <div id="pending-stats" style="display:flex;gap:16px;margin-bottom:28px;flex-wrap:wrap;"></div>
+      <table id="pending-table" style="width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
         <thead>
-          <tr style="background:#f7f9fc;text-align:left;">
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">메일</th>
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">접수일</th>
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">항공사</th>
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">내용</th>
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">상태</th>
-            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">완료일</th>
+          <tr style="background:#f7f9fc;">
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">번호</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">메일번호</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">시작날짜</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">항공사</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;">내용</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">상태</th>
+            <th style="padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:#6C5CE7;letter-spacing:.5px;white-space:nowrap;">완료날짜</th>
           </tr>
         </thead>
         <tbody id="pending-tbody"></tbody>
       </table>
-      <div id="pending-updated" style="margin-top:16px;color:#a0aec0;font-size:12px;"></div>
+      <div id="pending-empty" style="display:none;text-align:center;padding:60px 20px;color:#a0aec0;font-size:14px;">등록된 케이스가 없습니다.</div>
+      <div id="pending-updated" style="font-size:11px;color:#a0aec0;text-align:right;margin-top:24px;"></div>
     </div>
   </div>
 

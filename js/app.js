@@ -153,31 +153,28 @@ function renderPendingCases() {
   emptyEl.style.display = 'none';
   tableEl.style.display = '';
 
-  tbody.innerHTML = casesData.map(c => {
-    const bc = c.status === '대기' ? 'background:#FDCB6E;color:#7c6e00'
-             : c.status === '진행중' ? 'background:#74B9FF;color:#004080'
-             : 'background:#00B894;color:#fff';
-    return `<tr style="border-bottom:1px solid #edf2f7;">
-      <td style="padding:12px;">${c.mail||'-'}</td>
-      <td style="padding:12px;">${c.start||'-'}</td>
-      <td style="padding:12px;font-weight:600;">${c.airline||'-'}</td>
-      <td style="padding:12px;line-height:1.5;">${c.content||'-'}</td>
-      <td style="padding:12px;"><span style="padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;${bc}">${c.status||'-'}</span></td>
-      <td style="padding:12px;">${c.done||'-'}</td>
+  tbody.innerHTML = casesData.map((c, i) => {
+    const bc = c.status === '대기' ? 'b-wait' : c.status === '진행중' ? 'b-progress' : 'b-done';
+    return `<tr>
+      <td class="td-seq">${i + 1}</td>
+      <td class="td-mail">${c.mail||'-'}</td>
+      <td class="td-date">${c.start||'-'}</td>
+      <td class="td-airline">${c.airline||'-'}</td>
+      <td class="td-content">${c.content||'-'}</td>
+      <td><span class="badge ${bc}">${c.status||'-'}</span></td>
+      <td class="td-date">${c.done||'-'}</td>
     </tr>`;
   }).join('');
 
   const wait = casesData.filter(c=>c.status==='대기').length;
   const prog = casesData.filter(c=>c.status==='진행중').length;
   const done = casesData.filter(c=>c.status==='완료').length;
-  statsEl.innerHTML = [
-    {n:casesData.length,l:'전체',c:'#6C5CE7'},
-    {n:wait,l:'대기',c:'#FDCB6E'},
-    {n:prog,l:'진행중',c:'#74B9FF'},
-    {n:done,l:'완료',c:'#00B894'}
-  ].map(s=>`<div style="flex:1;background:#f7f9fc;border-radius:10px;padding:16px;text-align:center;">
-    <div style="font-size:24px;font-weight:700;color:${s.c}">${s.n}</div>
-    <div style="font-size:12px;color:#718096;margin-top:4px;">${s.l}</div></div>`).join('');
+  statsEl.innerHTML = `
+    <div class="stat"><div class="stat-num s-total">${casesData.length}</div><div class="stat-label">전체</div></div>
+    <div class="stat"><div class="stat-num s-wait">${wait}</div><div class="stat-label">대기</div></div>
+    <div class="stat"><div class="stat-num s-progress">${prog}</div><div class="stat-label">진행중</div></div>
+    <div class="stat"><div class="stat-num s-done">${done}</div><div class="stat-label">완료</div></div>
+  `;
 
   updatedEl.textContent = '마지막 업데이트: ' + new Date().toISOString().split('T')[0];
 }

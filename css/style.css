@@ -2720,3 +2720,26 @@ html[lang="en"] .member-card .role {
   border-top: 1px solid #f0f4f8;
   padding-top: 8px;
 }
+
+/* ════════════════════════════════════════
+   PENDING CASES (light mode)
+   ════════════════════════════════════════ */
+#pending-stats .stat{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:16px 24px;flex:1;min-width:140px;text-align:center}
+#pending-stats .stat-num{font-size:28px;font-weight:900}
+#pending-stats .stat-label{font-size:11px;color:#718096;margin-top:4px;letter-spacing:.5px}
+#pending-stats .s-wait{color:#d97706}
+#pending-stats .s-progress{color:#3b82f6}
+#pending-stats .s-done{color:#22c55e}
+#pending-stats .s-total{color:#6C5CE7}
+#pending-table tbody tr{border-top:1px solid #f0f4f8}
+#pending-table tbody tr:hover{background:#f7f9fc}
+#pending-table th{border-bottom:2px solid #e2e8f0}
+.td-seq{font-weight:900;color:#7c5cbf;font-size:14px;text-align:center;white-space:nowrap;padding:10px 14px}
+.td-content{max-width:350px;line-height:1.6;color:#4a5568;padding:10px 14px;font-size:13px}
+.td-date{white-space:nowrap;color:#718096;font-size:12px;padding:10px 14px}
+.td-airline{font-weight:700;color:#2d3748;white-space:nowrap;padding:10px 14px}
+.td-mail{font-family:'SF Mono',monospace;font-size:12px;color:#7c5cbf;white-space:nowrap;padding:10px 14px}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.b-wait{background:#fef3c7;color:#d97706}
+.b-progress{background:#dbeafe;color:#3b82f6}
+.b-done{background:#dcfce7;color:#22c55e}
