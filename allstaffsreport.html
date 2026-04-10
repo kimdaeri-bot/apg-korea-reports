@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko" id="html-root">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APG Korea 업무대시보드</title>
+  <script>
+    // Apply saved lang before render to prevent flash
+    (function(){
+      const l = localStorage.getItem('apg-lang') || 'ko';
+      document.documentElement.setAttribute('lang', l === 'en' ? 'en' : 'ko');
+    })();
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-logo">A</div>
+    <h1 class="header-title">APG <span>Korea</span> 업무대시보드</h1>
+  </div>
+  <div class="header-right">
+    <div class="date-display" id="currentDate"></div>
+    <div id="workHoursBadge" class="work-hours-header-badge" title="팀원 근무시간 요약">🕐 근무시간</div>
+    <div class="lang-toggle" id="langToggle">
+      <button class="lang-btn" id="btn-ko" data-lang="ko">🇰🇷 KO</button>
+      <button class="lang-btn" id="btn-en" data-lang="en">🇺🇸 EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- ── NAV TABS ── -->
+<nav class="nav-tabs-bar">
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-view="work" data-i18n="nav_work">📋 업무현황</button>
+    <button class="nav-tab" data-view="schedule" data-i18n="nav_schedule">📅 일정관리</button>
+    <button class="nav-tab" data-view="pending">📋 Pending Cases</button>
+
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="main" id="app">
+
+  <!-- ====== VIEW: 업무현황 ====== -->
+  <div class="view-section active" id="view-work">
+
+    <!-- PERIOD FILTER BAR -->
+    <div class="work-period-bar">
+      <div class="work-mode-tabs">
+        <button class="work-mode-tab active" data-mode="daily" data-i18n="daily">일일</button>
+        <button class="work-mode-tab" data-mode="weekly" data-i18n="weekly">주간</button>
+        <button class="work-mode-tab" data-mode="monthly" data-i18n="monthly">월간</button>
+      </div>
+      <!-- 일일: 날짜 피커 -->
+      <div class="work-period-nav" id="daily-nav">
+        <input type="date" id="daily-date-picker" class="date-picker-input" />
+      </div>
+      <!-- 주간: 이전/다음 주 네비 -->
+      <div class="work-period-nav" id="weekly-nav" style="display:none">
+        <button class="period-nav-btn" id="weekly-prev">←</button>
+        <span class="period-nav-label" id="weekly-label"></span>
+        <button class="period-nav-btn" id="weekly-next">→</button>
+      </div>
+      <!-- 월간: 이전/다음 달 네비 -->
+      <div class="work-period-nav" id="monthly-nav" style="display:none">
+        <button class="period-nav-btn" id="monthly-prev">←</button>
+        <span class="period-nav-label" id="monthly-label"></span>
+        <button class="period-nav-btn" id="monthly-next">→</button>
+      </div>
+    </div>
+
+    <!-- 종합 요약 섹션 -->
+    <div id="summaryReport" style="display:none"></div>
+
+    <!-- STAT STRIP -->
+    <div class="stat-strip">
+      <div class="stat-card">
+        <div class="stat-label" id="stat-label-hours">총 업무시간</div>
+        <div class="stat-value" id="stat-hours" style="color:#6C5CE7">—</div>
+        <div class="stat-sub" id="stat-sub-hours">시간</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="stat-label-tasks">총 업무 건수</div>
+        <div class="stat-value" id="stat-tasks" style="color:#00B894">—</div>
+        <div class="stat-sub" id="stat-submitters">건</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="stat-label-done">완료율</div>
+        <div class="stat-value" id="stat-done" style="color:#FDCB6E">—</div>
+        <div class="stat-sub" id="stat-sub-done">완료 비율</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" id="stat-label-issues">이슈</div>
+        <div class="stat-value" id="stat-issues" style="color:#E17055">—</div>
+        <div class="stat-sub" id="stat-sub-issues">건 접수</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">보고 제출률</div>
+        <div class="stat-value" id="stat-submission" style="color:#a29bfe">—</div>
+        <div class="stat-sub" id="stat-submission-sub">제출 비율</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">일평균 업무시간</div>
+        <div class="stat-value" id="stat-avg-hours" style="color:#00cec9">—</div>
+        <div class="stat-sub">h / 일</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">업무 밸런스</div>
+        <div class="stat-value" id="stat-balance" style="color:#fd79a8">—</div>
+        <div class="stat-sub" id="stat-balance-sub">최대/최소 비율</div>
+      </div>
+    </div>
+
+    <!-- CHARTS GRID -->
+    <p class="section-title" id="charts-section-title">📊 주간 현황</p>
+    <div class="charts-grid" id="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <div class="icon" style="background:rgba(108,92,231,0.2)">👤</div>
+          <span id="chart-title-member">팀원별 업무시간</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="memberHoursChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <div class="icon" style="background:rgba(0,184,148,0.2)">🗂</div>
+          <span id="chart-title-category">업무 카테고리 분포</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">
+          <div class="icon" style="background:rgba(253,203,110,0.2)">📋</div>
+          <span id="chart-title-status">업무 상태 분포</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card" id="chart-trend-card">
+        <div class="chart-card-title">
+          <div class="icon" style="background:rgba(116,185,255,0.2)">📈</div>
+          <span id="trend-chart-title">주간 업무시간 추이</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="weeklyTrendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAILY SUMMARY PANEL -->
+    <div class="daily-summary-panel" id="dailySummaryPanel" style="display:none"></div>
+
+    <!-- MEMBER CARDS -->
+    <p class="section-title" id="section-member-cards">👥 팀원별 상세</p>
+    <div class="members-grid" id="memberCards">
+      <!-- JS로 렌더링 -->
+    </div>
+
+    <!-- BOTTOM: ISSUES + MISSING -->
+    <div class="bottom-grid">
+      <div class="issue-board">
+        <p class="section-title" id="section-issue-board" style="margin-bottom:16px">⚠️ 이슈 보드</p>
+        <div class="issue-list" id="issueList"></div>
+      </div>
+      <div class="missing-report">
+        <p class="section-title" id="section-missing-report" style="margin-bottom:16px">🔴 미제출 현황</p>
+        <div class="missing-list" id="missingList"></div>
+      </div>
+    </div>
+
+  </div><!-- /view-work -->
+
+
+  <!-- ====== VIEW: 일정관리 ====== -->
+  <div class="view-section" id="view-schedule">
+
+    <!-- ① 월별 캘린더 뷰 -->
+    <div class="schedule-section-block">
+      <div class="schedule-section-header">
+        <p class="section-title" id="section-calendar" style="margin-bottom:0">📅 월별 캘린더</p>
+        <span class="sched-month-label" id="schedule-month-label"></span>
+      </div>
+      <div class="schedule-card">
+        <div class="unified-calendar" id="unifiedCalendar"></div>
+        <!-- 날짜 클릭 시 상세 팝업 -->
+        <div class="cal-detail-popup" id="calDetailPopup" style="display:none">
+          <div class="cal-detail-date" id="calDetailDate"></div>
+          <div class="cal-detail-list" id="calDetailList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 일정 목록 -->
+    <div class="schedule-section-block">
+      <div class="schedule-list-header">
+        <p class="section-title" id="section-schedule-list" style="margin-bottom:0">📋 일정 목록</p>
+        <div class="schedule-filter-wrap">
+          <select class="member-filter-select" id="memberFilterSelect">
+            <option value="all">전체 팀원</option>
+            <option value="윤심">윤심</option>
+            <option value="정근아">정근아</option>
+            <option value="권은미">권은미</option>
+            <option value="이정훈">이정훈</option>
+            <option value="정경준">정경준</option>
+          </select>
+        </div>
+      </div>
+      <div class="schedule-cards-list" id="scheduleCardsList"></div>
+    </div>
+
+    <!-- ③ 일정 등록 가이드 -->
+    <div class="schedule-section-block">
+      <p class="section-title" id="section-schedule-guide">💬 일정 등록 가이드</p>
+      <div class="schedule-card guide-card">
+        <div class="guide-desc">카카오톡 채팅에 아래 형식으로 입력하면 자동으로 일정이 등록됩니다.</div>
+        <div class="guide-commands">
+          <div class="guide-row">
+            <span class="guide-badge badge-fieldwork" id="guide-badge-fieldwork">외근</span>
+            <code>/외근 4/10 강남 EL AL 사무실 GSSA 미팅 10:00-12:00</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-leave" id="guide-badge-leave">휴가</span>
+            <code>/휴가 4/14 연차 개인사정</code>
+          </div>
+          <div class="guide-row">
+            <span class="guide-badge badge-general" id="guide-badge-general">기타</span>
+            <code>/일정 4/12 14:00 항공협회 정기회의</code>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /view-schedule -->
+
+  <div class="view-section" id="view-pending">
+    <div style="max-width:1100px;margin:0 auto;padding:24px;">
+      <div id="pending-stats" style="display:flex;gap:16px;margin-bottom:20px;"></div>
+      <div id="pending-empty" style="display:none;text-align:center;padding:40px;color:#a0aec0;">등록된 케이스가 없습니다.</div>
+      <table id="pending-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f7f9fc;text-align:left;">
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">메일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">접수일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">항공사</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">내용</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">상태</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">완료일</th>
+          </tr>
+        </thead>
+        <tbody id="pending-tbody"></tbody>
+      </table>
+      <div id="pending-updated" style="margin-top:16px;color:#a0aec0;font-size:12px;"></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="js/i18n.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
