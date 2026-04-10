@@ -724,6 +724,13 @@ html[lang="en"] .member-card .role {
   letter-spacing: 0.3px;
 }
 
+.nav-tab-link {
+  text-decoration: none;
+}
+.nav-tab-link:hover {
+  color: #6C5CE7;
+}
+
 .nav-tab:hover {
   color: var(--text);
   background: rgba(0,0,0,0.03);
