@@ -1270,7 +1270,12 @@ function switchToTab(view) {
   const params = new URLSearchParams(location.search);
   const tab = params.get('tab');
   if (tab === 'schedule') {
-    document.addEventListener('DOMContentLoaded', () => switchToTab('schedule'));
+    document.addEventListener('DOMContentLoaded', () => {
+      switchToTab('schedule');
+      // 업무현황 탭 숨기기
+      const workTab = document.querySelector('.nav-tab[data-view="work"]');
+      if (workTab) workTab.style.display = 'none';
+    });
   }
 })();
 
