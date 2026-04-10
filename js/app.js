@@ -123,6 +123,65 @@ function formatWorkHours(member) {
 }
 
 /* ── INIT ── */
+
+/* ════════════════════════════════════════
+   PENDING CASES
+   ════════════════════════════════════════ */
+let casesData = null;
+
+async function loadPendingCases() {
+  try {
+    const res = await fetch('./data/cases.json');
+    if (!res.ok) return;
+    casesData = await res.json();
+  } catch(e) { console.error(e); }
+}
+
+function renderPendingCases() {
+  const tbody = document.getElementById('pending-tbody');
+  const statsEl = document.getElementById('pending-stats');
+  const emptyEl = document.getElementById('pending-empty');
+  const tableEl = document.getElementById('pending-table');
+  const updatedEl = document.getElementById('pending-updated');
+  if (!tbody || !casesData) return;
+
+  if (casesData.length === 0) {
+    emptyEl.style.display = 'block';
+    tableEl.style.display = 'none';
+    return;
+  }
+  emptyEl.style.display = 'none';
+  tableEl.style.display = '';
+
+  tbody.innerHTML = casesData.map(c => {
+    const bc = c.status === '대기' ? 'background:#FDCB6E;color:#7c6e00'
+             : c.status === '진행중' ? 'background:#74B9FF;color:#004080'
+             : 'background:#00B894;color:#fff';
+    return `<tr style="border-bottom:1px solid #edf2f7;">
+      <td style="padding:12px;">${c.mail||'-'}</td>
+      <td style="padding:12px;">${c.start||'-'}</td>
+      <td style="padding:12px;font-weight:600;">${c.airline||'-'}</td>
+      <td style="padding:12px;line-height:1.5;">${c.content||'-'}</td>
+      <td style="padding:12px;"><span style="padding:4px 10px;border-radius:12px;font-size:12px;font-weight:600;${bc}">${c.status||'-'}</span></td>
+      <td style="padding:12px;">${c.done||'-'}</td>
+    </tr>`;
+  }).join('');
+
+  const wait = casesData.filter(c=>c.status==='대기').length;
+  const prog = casesData.filter(c=>c.status==='진행중').length;
+  const done = casesData.filter(c=>c.status==='완료').length;
+  statsEl.innerHTML = [
+    {n:casesData.length,l:'전체',c:'#6C5CE7'},
+    {n:wait,l:'대기',c:'#FDCB6E'},
+    {n:prog,l:'진행중',c:'#74B9FF'},
+    {n:done,l:'완료',c:'#00B894'}
+  ].map(s=>`<div style="flex:1;background:#f7f9fc;border-radius:10px;padding:16px;text-align:center;">
+    <div style="font-size:24px;font-weight:700;color:${s.c}">${s.n}</div>
+    <div style="font-size:12px;color:#718096;margin-top:4px;">${s.l}</div></div>`).join('');
+
+  updatedEl.textContent = '마지막 업데이트: ' + new Date().toISOString().split('T')[0];
+}
+
 async function init() {
   setHeaderDate();
   try {
@@ -137,11 +196,13 @@ async function init() {
     if (schedulesRes.ok) scheduleData = await schedulesRes.json();
     if (membersRes.ok)   membersData  = await membersRes.json();
 
+    await loadPendingCases();
     populateMemberFilter();
     updateWorkHoursBadge();
     applyStaticI18n();
     render();
     renderScheduleView();
+    renderPendingCases();
   } catch(e) {
     console.error(e);
     document.getElementById('app').innerHTML = `

@@ -241,8 +241,25 @@
 
   </div><!-- /view-schedule -->
 
-  <div class="view-section" id="view-pending" style="padding:0;">
-    <iframe id="pending-iframe" src="https://kimdaeri-bot.github.io/private-docs/apg-pending-cases.html" style="width:100%;height:calc(100vh - 70px);border:none;"></iframe>
+  <div class="view-section" id="view-pending">
+    <div style="max-width:1100px;margin:0 auto;padding:24px;">
+      <div id="pending-stats" style="display:flex;gap:16px;margin-bottom:20px;"></div>
+      <div id="pending-empty" style="display:none;text-align:center;padding:40px;color:#a0aec0;">등록된 케이스가 없습니다.</div>
+      <table id="pending-table" style="width:100%;border-collapse:collapse;font-size:14px;">
+        <thead>
+          <tr style="background:#f7f9fc;text-align:left;">
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">메일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">접수일</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">항공사</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">내용</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">상태</th>
+            <th style="padding:12px;border-bottom:2px solid #e2e8f0;font-weight:700;">완료일</th>
+          </tr>
+        </thead>
+        <tbody id="pending-tbody"></tbody>
+      </table>
+      <div id="pending-updated" style="margin-top:16px;color:#a0aec0;font-size:12px;"></div>
+    </div>
   </div>
 
 </main>
